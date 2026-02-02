@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-render-app-url.onrender.com/api/:path*"
+      "destination": "https://matrimony-a1jg.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://your-render-app-url.onrender.com/uploads/:path*"
+      "destination": "https://matrimony-a1jg.onrender.com/uploads/:path*"
     }
   ]
 }
