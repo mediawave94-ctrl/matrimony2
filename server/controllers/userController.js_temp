@@ -1,0 +1,64 @@
+
+exports.getUserById = async (req, res) => {
+    try {
+        const currentUserId = req.user.id;
+        const targetUserId = req.params.id;
+
+        let user = await User.findById(targetUserId).select('-password');
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        // If viewing self, return full profile
+        if (currentUserId === targetUserId) {
+            return res.json(user);
+        }
+
+        // Check connection status
+        const Connection = require('../models/Connection');
+        const connection = await Connection.findOne({
+            $or: [
+                { requester: currentUserId, recipient: targetUserId },
+                { requester: targetUserId, recipient: currentUserId }
+            ],
+            status: 'accepted'
+        });
+
+        const isConnected = !!connection;
+
+        // Clone user object to modify it
+        let userProfile = user.toObject();
+
+        if (!isConnected) {
+            // MASK SENSITIVE DATA
+            // userProfile.email = 'Hidden'; // Already likely not needed for public view
+            // userProfile.phone = 'Hidden'; 
+
+            // We want to "show all profile untill connection request accept theprofile must not show to everyone"
+            // This phrasing is slightly ambiguous. "Accept it show all profile". "Until accept... must not show to everyone".
+            // So: Not Connected -> Limited. Connected -> Full.
+            
+            // Allow: Name, Age, Gender, Bio, Basic Details, Professional (Generic), Religion.
+            // Hide: Detailed Family, Astrological (maybe?), Exact Contact.
+            
+            // Let's hide Family and Astrological specific details for now as a privacy measure
+            // Or maybe just show basics.
+            
+            // For now, I will return the full object but mark it as "limited" metadata so UI can show a lock?
+            // Actually, secure it backend side.
+            
+            delete userProfile.family;
+            delete userProfile.astrological;
+            delete userProfile.email;
+            
+            // Keep Basic, Religious, Professional, Location, Personality.
+            userProfile.isConnected = false;
+        } else {
+            userProfile.isConnected = true;
+        }
+
+        res.json(userProfile);
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};

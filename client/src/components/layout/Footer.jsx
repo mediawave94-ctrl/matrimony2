@@ -1,0 +1,40 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Footer = () => {
+    return (
+        <footer className="bg-gray-900 text-white py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div className="col-span-1 md:col-span-2">
+                        <span className="text-2xl font-bold text-secondary">Shisya Matrimony</span>
+                        <p className="mt-4 text-gray-400 text-sm leading-relaxed max-w-sm">
+                            Find your perfect life partner with confidence. Join thousands of verified profiles and discover meaningful connections based on values and trust.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+                        <ul className="space-y-2 text-sm text-gray-400">
+                            <li><Link to="/" className="hover:text-white transition">Home</Link></li>
+                            <li><Link to="/login" className="hover:text-white transition">Login</Link></li>
+                            <li><Link to="/register" className="hover:text-white transition">Register</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="text-lg font-semibold mb-4">Contact</h4>
+                        <ul className="space-y-2 text-sm text-gray-400">
+                            <li>support@shisyamatrimony.com</li>
+                            <li>+91 98765 43210</li>
+                            <li>Privacy Policy</li>
+                        </ul>
+                    </div>
+                </div>
+                <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
+                    &copy; {new Date().getFullYear()} Shisya Matrimony. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    );
+};
+
+export default Footer;
