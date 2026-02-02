@@ -7,6 +7,17 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://matrimony-a1jg.onrender.com/uploads/:path*"
-    }
+    } ,
+
+
+    { "source": "/(.*)", "destination": "/" }
+ 
+
+
+
+
+
+
+    
   ]
 }
