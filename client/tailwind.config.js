@@ -7,11 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#0F172A', // Slate 900 (Deep Navy)
-        secondary: '#C5A059', // Muted Gold
-        accent: '#F9FAFB', // Cool Gray 50 (Off-white)
-        'primary-hover': '#1E293B',
-        'secondary-hover': '#B08D45',
+        primary: '#5a0001', // Deep Maroon
+        secondary: '#d4af37', // Premium Gold
+        accent: '#F9FAFB',
+        'primary-hover': '#4a0000',
+        'secondary-hover': '#c19b2e',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

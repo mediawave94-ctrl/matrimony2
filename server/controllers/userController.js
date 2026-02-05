@@ -65,6 +65,7 @@ exports.getUserById = async (req, res) => {
         const currentUserId = req.user.id;
         const targetUserId = req.params.id;
 
+        const currentUser = await User.findById(currentUserId);
         let user = await User.findById(targetUserId).select('-password');
         if (!user) return res.status(404).json({ msg: 'User not found' });
 
@@ -85,16 +86,30 @@ exports.getUserById = async (req, res) => {
 
         const isConnected = !!connection;
 
+        // Calculate Astrology Match for profile view
+        const { calculateTamilMatch } = require('../utils/astrologyMatcher');
+        let astroMatch = { total: 0, details: [] }; // Default empty match
+        const fs = require('fs');
+        if (currentUser.astrological?.natchathiram && user.astrological?.natchathiram) {
+            const boy = currentUser.gender === 'male' ? currentUser.astrological : user.astrological;
+            const girl = currentUser.gender === 'female' ? currentUser.astrological : user.astrological;
+            astroMatch = calculateTamilMatch(boy, girl);
+            fs.appendFileSync('profile_debug.log', `Profile View: ${currentUser.name} as ${currentUser.gender} viewing ${user.name}: Boy(${boy.natchathiram}) Girl(${girl.natchathiram}) -> Score: ${astroMatch.total}\n`);
+        } else {
+            fs.appendFileSync('profile_debug.log', `Profile View Skipped: selfStar=${!!currentUser.astrological?.natchathiram} targetStar=${!!user.astrological?.natchathiram}\n`);
+        }
+
         // Clone user object to modify it
         let userProfile = user.toObject();
+        userProfile.astroMatch = astroMatch;
 
         if (!isConnected) {
             // MASK SENSITIVE DATA
             // Allow: Name, Age, Gender, Bio, Basic Details, Professional (Generic), Religion.
-            // Hide: Detailed Family, Astrological, Email.
+            // Hide: Detailed Family, Email.
+            // Note: We keep astrological for the "Match Details" view requested by user
 
             delete userProfile.family;
-            delete userProfile.astrological;
             delete userProfile.email;
 
             userProfile.isConnected = false;

@@ -15,7 +15,8 @@ const Dashboard = () => {
 
     // Filters
     const [filters, setFilters] = useState({
-        minAge: '', maxAge: '', religion: '', caste: '', city: '', occupation: ''
+        minAge: '', maxAge: '', religion: '', caste: '', city: '', occupation: '',
+        rassi: '', natchathiram: '', dosham: ''
     });
 
     // Connection State
@@ -156,13 +157,19 @@ const Dashboard = () => {
 
     const getScoreColor = (score) => {
         if (score >= 80) return 'text-green-600';
-        if (score >= 60) return 'text-yellow-600';
-        return 'text-red-500';
+        if (score >= 60) return 'text-amber-600';
+        return 'text-rose-600';
+    };
+
+    const getAstroScoreColor = (score) => {
+        if (score >= 8) return 'text-green-600';
+        if (score >= 5) return 'text-amber-600';
+        return 'text-rose-600';
     };
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-900"></div>
         </div>
     );
 
@@ -274,13 +281,21 @@ const Dashboard = () => {
                                         </div>
                                     )}
 
-                                    <div className="absolute top-3 left-3">
-                                        <div className={`bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px]`}>
+                                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                                        <div className={`bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-rose-100`}>
                                             <span className={`text-lg font-bold leading-none ${getScoreColor(match.compatibility.total)}`}>
                                                 {match.compatibility.total}%
                                             </span>
                                             <span className="text-[8px] text-gray-400 font-bold uppercase tracking-widest">Match</span>
                                         </div>
+                                        {match.astroScore !== null && (
+                                            <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-amber-200`}>
+                                                <span className={`text-sm font-extrabold leading-none ${getAstroScoreColor(match.astroScore || 0)}`}>
+                                                    {(match.astroScore || 0)}/10
+                                                </span>
+                                                <span className="text-[7px] text-amber-600 font-bold uppercase tracking-widest">Astro</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
@@ -335,11 +350,25 @@ const Dashboard = () => {
                     </div>
 
                     {/* Filter Bar */}
-                    <div className="w-full md:w-auto flex flex-wrap gap-2 items-center bg-white p-2 md:p-1.5 rounded-2xl border border-gray-100 shadow-sm">
-                        <input name="minAge" placeholder="Min Age" className="flex-1 min-w-[70px] md:w-20 p-2 text-sm border-none bg-gray-50 rounded-xl focus:ring-0" value={filters.minAge} onChange={handleFilterChange} />
-                        <input name="maxAge" placeholder="Max Age" className="flex-1 min-w-[70px] md:w-20 p-2 text-sm border-none bg-gray-50 rounded-xl focus:ring-0" value={filters.maxAge} onChange={handleFilterChange} />
-                        <input name="city" placeholder="City" className="flex-[2] min-w-[100px] md:w-28 p-2 text-sm border-none bg-gray-50 rounded-xl focus:ring-0" value={filters.city} onChange={handleFilterChange} />
-                        <Button size="sm" onClick={applyFilters} className="w-full md:w-auto rounded-xl">Filter</Button>
+                    <div className="w-full flex flex-col gap-4 bg-white p-6 rounded-3xl border border-rose-100 shadow-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                            <input name="minAge" type="number" placeholder="Min Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.minAge} onChange={handleFilterChange} />
+                            <input name="maxAge" type="number" placeholder="Max Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.maxAge} onChange={handleFilterChange} />
+                            <input name="city" placeholder="City" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.city} onChange={handleFilterChange} />
+                            <input name="religion" placeholder="Religion" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.religion} onChange={handleFilterChange} />
+                            <input name="caste" placeholder="Caste" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.caste} onChange={handleFilterChange} />
+                            <input name="rassi" placeholder="Rassi" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.rassi} onChange={handleFilterChange} />
+                            <input name="natchathiram" placeholder="Natchathiram" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.natchathiram} onChange={handleFilterChange} />
+                            <select name="dosham" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.dosham} onChange={handleFilterChange}>
+                                <option value="">Dosham?</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                                <option value="Unknown">Unknown</option>
+                            </select>
+                            <Button onClick={applyFilters} className="bg-rose-900 hover:bg-rose-950 text-amber-400 font-bold rounded-xl shadow-lg shadow-rose-900/20 col-span-2 md:col-span-1">
+                                Apply Filters
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
@@ -388,16 +417,27 @@ const Dashboard = () => {
                                         </div>
                                     )}
 
+                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[90%] flex justify-between items-center pointer-events-none">
+                                        <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-rose-100 flex flex-col items-center min-w-[45px]`}>
+                                            <span className={`text-xs font-bold leading-none ${getScoreColor(profile.compatibility?.total || 0)}`}>
+                                                {profile.compatibility?.total || 0}%
+                                            </span>
+                                            <span className="text-[6px] text-gray-400 font-bold uppercase tracking-widest">Match</span>
+                                        </div>
+                                        {profile.astroScore !== null && (
+                                            <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-amber-200 flex flex-col items-center min-w-[45px]`}>
+                                                <span className={`text-xs font-extrabold leading-none ${getAstroScoreColor(profile.astroScore || 0)}`}>
+                                                    {(profile.astroScore || 0)}/10
+                                                </span>
+                                                <span className="text-[6px] text-amber-600 font-bold uppercase tracking-widest">Astro</span>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
                                         <span className="text-[10px] font-bold text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-md uppercase tracking-wide">
                                             {profile.gender} • {profile.age || 'N/A'}
                                         </span>
-                                        <div className={`bg-white/90 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex items-center gap-2`}>
-                                            <span className="text-[8px] text-gray-400 font-bold uppercase tracking-widest">Match</span>
-                                            <span className={`text-sm font-bold ${getScoreColor(profile.compatibility?.total || 0)}`}>
-                                                {profile.compatibility?.total || 0}%
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
 

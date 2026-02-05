@@ -1,205 +1,110 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
-import HeroBg from '../assets/hero-bg.png';
+import HeroBg from '../assets/bg.jpeg';
 import SuccessStory1 from '../assets/success-story-1.png';
+import Login from './Login';
 
 const Landing = () => {
-    return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-grow">
-                {/* Hero Section */}
-                <section className="relative h-[600px] lg:h-[750px] flex items-center overflow-hidden">
-                    {/* Background with Overlay */}
-                    <div className="absolute inset-0 z-0">
-                        <img
-                            src={HeroBg}
-                            alt="Happy Couple"
-                            className="w-full h-full object-cover object-center"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
-                    </div>
+  return (
+    <div className="min-h-screen w-full bg-[#fdfaf6] font-sans selection:bg-rose-100 selection:text-rose-900">
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative min-h-[95vh] lg:min-h-screen flex items-center overflow-hidden">
 
-                    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                        <div className="max-w-2xl text-white">
-                            <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium tracking-wide mb-6 text-secondary font-sans">
-                                ✨ #1 Trusted Matrimony Platform
-                            </span>
-                            <h1 className="text-5xl md:text-7xl font-playfair font-bold leading-tight mb-6">
-                                Find Your <br />
-                                <span className="text-secondary italic">Perfect Soulmate</span>
-                            </h1>
-                            <p className="text-xl text-gray-200 mb-10 font-light leading-relaxed">
-                                Join our exclusive community of verified profiles. <br className="hidden md:block" />
-                                Designed for modern families who value tradition and trust.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                {localStorage.getItem('token') ? (
-                                    <Link to="/dashboard">
-                                        <Button className="w-full sm:w-auto h-14 px-8 text-lg bg-secondary hover:bg-secondary-hover text-white shadow-xl shadow-secondary/20 rounded-full transition-all hover:scale-105">
-                                            Go to Dashboard
-                                        </Button>
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link to="/register">
-                                            <Button className="w-full sm:w-auto h-14 px-8 text-lg bg-secondary hover:bg-secondary-hover text-white shadow-xl shadow-secondary/20 rounded-full transition-all hover:scale-105">
-                                                Start for Free
-                                            </Button>
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
-                            <div className="mt-12 flex items-center gap-4 text-sm text-gray-300">
-                                <div className="flex -space-x-3">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={i} className="w-10 h-10 rounded-full border-2 border-primary bg-gray-600"></div>
-                                    ))}
-                                </div>
-                                <p>Join 10,000+ happy members</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Trust Section */}
-                <section className="py-24 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl font-bold text-primary font-playfair">Why Choose Shisya Matrimony?</h2>
-                            <div className="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
-                        </div>
-
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {[
-                                {
-                                    title: "100% Verified Profiles",
-                                    desc: "Every profile is manually screened and Aadhar verified to ensure a safe and trustworthy environment for you.",
-                                    icon: "🛡️"
-                                },
-                                {
-                                    title: "Smart Compatibility",
-                                    desc: "Our proprietary AI matching algorithm connects you with people who share your values and lifestyle.",
-                                    icon: "🤖"
-                                },
-                                {
-                                    title: "Privacy First",
-                                    desc: "You have complete control over who sees your photos and contact information. Your privacy is our priority.",
-                                    icon: "🔒"
-                                }
-                            ].map((feature, idx) => (
-                                <div key={idx} className="group p-8 rounded-2xl bg-gray-50 hover:bg-white border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm text-4xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                                        {feature.icon}
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                                    <p className="text-gray-600 leading-relaxed">
-                                        {feature.desc}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                {/* Carousel - Featured Profiles (Dummy Animation) */}
-                <section className="py-20 bg-primary overflow-hidden">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center text-white">
-                        <h2 className="text-3xl font-bold font-playfair">Featured Profiles</h2>
-                        <p className="text-gray-300 mt-2">Discover verified members from your community</p>
-                    </div>
-
-                    <div className="flex gap-6 animate-scroll whitespace-nowrap px-4 overflow-x-auto pb-4 hide-scrollbar">
-                        {/* We repeat this block to simulate infinite scroll feel if we had CSS animation, for now horizontal scroll */}
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="inline-block w-64 bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/10 hover:border-secondary/50 transition-colors flex-shrink-0">
-                                <div className="h-64 bg-gray-800 relative">
-                                    {/* Blurred Image Effect */}
-                                    <div className="absolute inset-0 bg-gray-600 blur-sm opacity-50"></div>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-3xl opacity-30">📷</span>
-                                    </div>
-                                    <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white">
-                                        <p className="font-bold text-lg">Member #{1000 + i}</p>
-                                        <p className="text-sm text-gray-300">2{i} yrs • Engineer</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Success Stories */}
-                <section className="py-24 bg-accent">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-                            <div>
-                                <h2 className="text-3xl md:text-4xl font-bold text-primary font-playfair">Success Stories</h2>
-                                <p className="text-gray-600 mt-2">Real couples, real love.</p>
-                            </div>
-                            <Button variant="outline" className="hidden md:block">View All Stories</Button>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-8">
-                            {/* Story 1 */}
-                            <div className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col md:flex-row h-full md:h-80 group hover:shadow-2xl transition-shadow">
-                                <div className="md:w-1/2 overflow-hidden">
-                                    <img
-                                        src={SuccessStory1}
-                                        alt="Success Story"
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                    />
-                                </div>
-                                <div className="p-8 md:w-1/2 flex flex-col justify-center">
-                                    <div className="mb-4 text-secondary text-4xl font-serif">"</div>
-                                    <p className="text-gray-600 italic mb-6">
-                                        We found each other on Shisya Matrimony within a week. The compatibility scoring was spot on! We are now happily married for 2 years.
-                                    </p>
-                                    <div>
-                                        <h4 className="font-bold text-primary text-lg">Rahul & Priya</h4>
-                                        <p className="text-sm text-gray-500">Married Dec 2024</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Story 2 (Placeholder) */}
-                            <div className="bg-white rounded-3xl overflow-hidden shadow-xl shadow-gray-200/50 flex flex-col md:flex-row h-full md:h-80 group hover:shadow-2xl transition-shadow">
-                                <div className="md:w-1/2 overflow-hidden bg-gray-200 relative">
-                                    <div className="absolute inset-0 bg-gray-300"></div>
-                                </div>
-                                <div className="p-8 md:w-1/2 flex flex-col justify-center">
-                                    <div className="mb-4 text-secondary text-4xl font-serif">"</div>
-                                    <p className="text-gray-600 italic mb-6">
-                                        The most trusted platform for our community. The verification process gave us peace of mind. Highly recommended!
-                                    </p>
-                                    <div>
-                                        <h4 className="font-bold text-primary text-lg">Amit & Sneha</h4>
-                                        <p className="text-sm text-gray-500">Married Jan 2025</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Footer CTA */}
-                <section className="py-20 bg-secondary relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -m-10 w-64 h-64 rounded-full bg-white/10"></div>
-                    <div className="absolute bottom-0 left-0 -m-10 w-96 h-96 rounded-full bg-white/10"></div>
-
-                    <div className="relative text-center max-w-3xl mx-auto px-4 z-10">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white font-playfair mb-6">Ready to find your soulmate?</h2>
-                        <p className="text-white/90 text-lg mb-10">Join millions of happy couples who found love on Shisya Matrimony.</p>
-                        <Link to="/register">
-                            <Button className="bg-white text-secondary hover:bg-gray-100 px-10 py-4 h-auto text-lg rounded-full shadow-lg">
-                                Create Free Profile
-                            </Button>
-                        </Link>
-                    </div>
-                </section>
-            </main>
+        {/* Background Image & Overlays */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HeroBg}
+            alt="Traditional Wedding Background"
+            className="w-full h-full object-cover scale-105"
+          />
+          {/* Deep Maroon Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#5a0001]/95 via-[#5a0001]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#5a0001]/40 via-transparent to-[#5a0001]/20" />
         </div>
-    );
+
+        {/* Decorative SVG Elements (Mandala pattern style) */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 opacity-10 pointer-events-none">
+          <svg viewBox="0 0 100 100" className="w-full h-full text-amber-400 rotate-12">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+            <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="0.2" />
+          </svg>
+        </div>
+
+        {/* Content Container */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-20 lg:py-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-16 lg:gap-8">
+
+            {/* ================= LEFT CONTENT ================= */}
+            <div className="text-white">
+              <div className="flex flex-col gap-2 mb-8">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-xs font-black text-white-400 backdrop-blur-md w-fit uppercase tracking-widest">
+                  ✨The largest and most trusted Tamil matrimony service
+                </span>
+              </div>
+
+              <h1 className="text-5xl md:text-7xl xl:text-8xl font-black leading-[0.9] mb-8 tracking-tighter">
+                Discover Your <br />
+                <span className="text-amber-400 drop-shadow-[0_2px_10px_rgba(251,191,36,0.2)]">
+                  Destined
+                </span><br />
+                Partner
+              </h1>
+
+              <p className="text-lg md:text-xl text-rose-50/80 mb-10 leading-relaxed max-w-lg font-medium">
+                Merging traditional values with modern matchmaking. Find profiles verified by trust and guided by stars.
+              </p>
+
+              {/* <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Link to="/register" className="w-full sm:w-auto">
+                  <Button className="w-full bg-amber-400 hover:bg-amber-500 text-[#5a0001] px-10 py-7 rounded-2xl text-xl font-black shadow-2xl shadow-amber-400/20 transition-all hover:-translate-y-1">
+                    Begin Journey
+                  </Button>
+                </Link>
+                <div className="hidden sm:flex items-center gap-3 px-6 py-4 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 group cursor-pointer hover:bg-white/10 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-rose-900 flex items-center justify-center text-amber-400 font-bold group-hover:scale-110 transition-transform">
+                    ▶
+                  </div>
+                  <span className="text-sm font-bold tracking-wide">Watch Stories</span>
+                </div>
+              </div> */}
+
+              {/* Trust Indicators */}
+              <div className="mt-16 pt-10 border-t border-white/10 flex flex-wrap items-center gap-10">
+                <div className="flex flex-col gap-1">
+                  <span className="text-2xl font-black text-white-400">10k+</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-rose-100/50">Verified Profiles</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-2xl font-black text-white-400">98%</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-rose-100/50">Match Accuracy</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-2xl font-black text-white-400">24/7</span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-rose-100/50">Family Support</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ================= RIGHT LOGIN CARD ================= */}
+            <div className="flex justify-center lg:justify-end perspective-1000">
+              <div className="w-full max-w-sm bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] p-2 relative group transition-all duration-700 hover:rotate-1">
+                {/* Decorative border or glow */}
+                <div className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-tr from-amber-400/20 to-rose-900/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                <div className="bg-rose-900/5 rounded-[2rem] p-1">
+                  {/* Pass a special class or handle within Login if needed, 
+                       but here we just wrap it in a premium container */}
+                  <Login isCompact={true} />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 };
 
 export default Landing;

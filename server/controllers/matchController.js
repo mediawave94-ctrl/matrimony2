@@ -1,13 +1,12 @@
 const User = require('../models/User');
 const calculateMatchScore = require('../utils/matchScorer');
+const { calculateTamilMatch } = require('../utils/astrologyMatcher');
 
 exports.getMatches = async (req, res) => {
     try {
-        // Assume req.user.id is populated by auth middleware (need to create/use it)
         const currentUser = await User.findById(req.user.id);
         if (!currentUser) return res.status(404).json({ msg: 'User not found' });
 
-        // Check if current user has completed ALL personality quiz sections
         if (!currentUser.personality ||
             !currentUser.personality.conflictHandling ||
             !currentUser.personality.lifestyle ||
@@ -20,26 +19,22 @@ exports.getMatches = async (req, res) => {
             });
         }
 
-        // Find potential matches
-        // Filter: Opposite gender (or targetGender), Not self, Has COMPLETED Personality
         const query = {
-            _id: { $ne: currentUser.id }, // Exclude self
-            gender: currentUser.targetGender, // Strict opposite match for now
-            role: { $ne: 'admin' }, // Exclude admin
+            _id: { $ne: currentUser.id },
+            gender: currentUser.targetGender,
+            role: { $ne: 'admin' },
             'personality.conflictHandling': { $exists: true, $ne: null },
             'personality.lifestyle': { $exists: true, $ne: null },
             'personality.careerVsFamily': { $exists: true, $ne: null },
             'personality.financialMindset': { $exists: true, $ne: null }
         };
 
-        // Check if target is 'both' or missing, maybe relax? Keeping strict 400 for now if gender missing.
         if (!currentUser.gender) {
             return res.status(400).json({ msg: 'Please complete your profile gender settings' });
         }
 
-        const candidates = await User.find(query).limit(10); // Limit to 10 for "Slow Match"
+        const candidates = await User.find(query).limit(10);
 
-        // Fetch all connections for this user to map status
         const Connection = require('../models/Connection');
         const connections = await Connection.find({
             $or: [{ requester: currentUser.id }, { recipient: currentUser.id }]
@@ -55,7 +50,6 @@ exports.getMatches = async (req, res) => {
 
         const Message = require('../models/Message');
 
-        // Calculate Scores
         const matches = await Promise.all(candidates.map(async (candidate) => {
             const score = calculateMatchScore(currentUser, candidate);
             const unreadCount = await Message.countDocuments({
@@ -64,23 +58,36 @@ exports.getMatches = async (req, res) => {
                 isRead: false
             });
 
+            // Astrology Match Score
+            let astroScore = 0;
+            const fs = require('fs');
+            if (currentUser.astrological?.natchathiram && candidate.astrological?.natchathiram) {
+                const boy = currentUser.gender === 'male' ? currentUser.astrological : candidate.astrological;
+                const girl = currentUser.gender === 'female' ? currentUser.astrological : candidate.astrological;
+                const result = calculateTamilMatch(boy, girl);
+                astroScore = result.total || 0;
+                fs.appendFileSync('match_debug.log', `Matching ${currentUser.name} as ${currentUser.gender} with ${candidate.name}: Boy(${boy.natchathiram}) Girl(${girl.natchathiram}) -> Score: ${astroScore}\n`);
+            } else {
+                fs.appendFileSync('match_debug.log', `Skipped matching ${currentUser.name} with ${candidate.name}: selfStar=${!!currentUser.astrological?.natchathiram} targetStar=${!!candidate.astrological?.natchathiram}\n`);
+            }
+
             return {
                 _id: candidate._id,
-                name: candidate.name, // In real app, name might be hidden?
+                name: candidate.name,
                 age: candidate.age,
                 gender: candidate.gender,
                 compatibility: score,
-                personality: candidate.personality, // Expose traits for UI
+                astroScore,
+                personality: candidate.personality,
                 basicDetails: candidate.basicDetails,
+                astrological: candidate.astrological,
                 subscriptionStatus: candidate.subscriptionStatus,
                 connectionStatus: connectionMap[candidate._id.toString()] || 'none',
                 unreadCount
             };
         }));
 
-        // Sort by highest compatibility
         matches.sort((a, b) => b.compatibility.total - a.compatibility.total);
-
         res.json(matches);
 
     } catch (err) {
@@ -94,16 +101,12 @@ exports.getAllMatches = async (req, res) => {
         const currentUser = await User.findById(req.user.id);
         if (!currentUser) return res.status(404).json({ msg: 'User not found' });
 
-        // No strict personality check for "All Profiles"
-        // We just want to see "opposite gender" (or target gender)
-
-        // Parse Filters
-        const { minAge, maxAge, religion, caste, city, occupation } = req.query;
+        const { minAge, maxAge, religion, caste, city, occupation, rassi, natchathiram, dosham } = req.query;
 
         const query = {
             _id: { $ne: currentUser.id },
             gender: currentUser.targetGender,
-            role: { $ne: 'admin' }, // Exclude admin
+            role: { $ne: 'admin' },
         };
 
         if (minAge || maxAge) {
@@ -114,13 +117,16 @@ exports.getAllMatches = async (req, res) => {
 
         if (religion) query['religious.religion'] = religion;
         if (caste) query['religious.caste'] = caste;
-        if (city) query['location.city'] = new RegExp(city, 'i'); // Case insensitive partial? Or exact? RegExp safer for user input
+        if (city) query['location.city'] = new RegExp(city, 'i');
         if (occupation) query['professional.occupation'] = occupation;
 
-        // Fetch ALL candidates (no limit)
+        // Astrology Filters
+        if (rassi) query['astrological.rassi'] = rassi;
+        if (natchathiram) query['astrological.natchathiram'] = natchathiram;
+        if (dosham) query['astrological.dosham'] = dosham;
+
         const candidates = await User.find(query);
 
-        // Fetch all connections
         const Connection = require('../models/Connection');
         const connections = await Connection.find({
             $or: [{ requester: currentUser.id }, { recipient: currentUser.id }]
@@ -135,7 +141,6 @@ exports.getAllMatches = async (req, res) => {
 
         const Message = require('../models/Message');
 
-        // Calculate Scores
         const matches = await Promise.all(candidates.map(async (candidate) => {
             const score = calculateMatchScore(currentUser, candidate);
             const unreadCount = await Message.countDocuments({
@@ -144,14 +149,24 @@ exports.getAllMatches = async (req, res) => {
                 isRead: false
             });
 
+            // Astrology Match Score
+            let astroScore = 0;
+            if (currentUser.astrological?.natchathiram && candidate.astrological?.natchathiram) {
+                const boy = currentUser.gender === 'male' ? currentUser.astrological : candidate.astrological;
+                const girl = currentUser.gender === 'female' ? currentUser.astrological : candidate.astrological;
+                astroScore = calculateTamilMatch(boy, girl).total || 0;
+            }
+
             return {
                 _id: candidate._id,
                 name: candidate.name,
                 age: candidate.age,
                 gender: candidate.gender,
                 compatibility: score,
+                astroScore,
                 personality: candidate.personality,
                 basicDetails: candidate.basicDetails,
+                astrological: candidate.astrological,
                 subscriptionStatus: candidate.subscriptionStatus,
                 connectionStatus: connectionMap[candidate._id.toString()] || 'none',
                 unreadCount
@@ -159,7 +174,6 @@ exports.getAllMatches = async (req, res) => {
         }));
 
         matches.sort((a, b) => b.compatibility.total - a.compatibility.total);
-
         res.json(matches);
 
     } catch (err) {

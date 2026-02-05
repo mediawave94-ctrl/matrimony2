@@ -9,8 +9,8 @@ const Footer = () => {
                     <div className="col-span-1 md:col-span-2">
                         <span className="text-2xl font-bold text-secondary">Shisya Matrimony</span>
                         <p className="mt-4 text-gray-400 text-sm leading-relaxed max-w-sm">
-                            Find your perfect life partner with confidence. Join thousands of verified profiles and discover meaningful connections based on values and trust.
-                        </p>
+                          
+                          This platform is exclusively for matrimonial purposes</p>
                     </div>
                     <div>
                         <h4 className="text-lg font-semibold mb-4">Quick Links</h4>

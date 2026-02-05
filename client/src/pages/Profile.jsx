@@ -13,6 +13,126 @@ const Profile = () => {
     const [formData, setFormData] = useState({});
     const navigate = useNavigate();
 
+    // -- Constants for Dropdowns --
+    const RELIGION_OPTIONS = [
+        { value: 'Hindu', label: 'Hindu' },
+        { value: 'Christian', label: 'Christian' },
+        { value: 'Muslim', label: 'Muslim' },
+        { value: 'Sikh', label: 'Sikh' },
+        { value: 'Jain', label: 'Jain' },
+        { value: 'Buddhist', label: 'Buddhist' },
+        { value: 'Other', label: 'Other' }
+    ];
+
+    const CASTE_OPTIONS = [
+        { value: 'Adidravidar', label: 'Adidravidar' },
+        { value: 'Brahmin', label: 'Brahmin' },
+        { value: 'Chettiar', label: 'Chettiar' },
+        { value: 'Gounder', label: 'Gounder' },
+        { value: 'Mudaliar', label: 'Mudaliar' },
+        { value: 'Nadar', label: 'Nadar' },
+        { value: 'Pillai', label: 'Pillai' },
+        { value: 'Thevar', label: 'Thevar' },
+        { value: 'Vanniyar', label: 'Vanniyar' },
+        { value: 'Vellalar', label: 'Vellalar' },
+        { value: 'Vishwakarma', label: 'Vishwakarma' },
+        { value: 'Yadava', label: 'Yadava' },
+        { value: 'Other', label: 'Other' }
+    ];
+
+    const RASI_OPTIONS = [
+        { value: 'Mesha', label: 'Mesha (Aries)' },
+        { value: 'Rishaba', label: 'Rishaba (Taurus)' },
+        { value: 'Mithuna', label: 'Mithuna (Gemini)' },
+        { value: 'Karka', label: 'Karka (Cancer)' },
+        { value: 'Simha', label: 'Simha (Leo)' },
+        { value: 'Kanya', label: 'Kanya (Virgo)' },
+        { value: 'Thula', label: 'Thula (Libra)' },
+        { value: 'Vrischika', label: 'Vrischika (Scorpio)' },
+        { value: 'Dhanus', label: 'Dhanus (Sagittarius)' },
+        { value: 'Makara', label: 'Makara (Capricorn)' },
+        { value: 'Kumbha', label: 'Kumbha (Aquarius)' },
+        { value: 'Meena', label: 'Meena (Pisces)' }
+    ];
+
+    const NATCHATHIRAM_OPTIONS = [
+        { value: 'Aswini', label: 'Aswini' },
+        { value: 'Bharani', label: 'Bharani' },
+        { value: 'Krithika', label: 'Krithika' },
+        { value: 'Rohini', label: 'Rohini' },
+        { value: 'Mrigashira', label: 'Mrigashira' },
+        { value: 'Arudra', label: 'Arudra' },
+        { value: 'Punarvasu', label: 'Punarvasu' },
+        { value: 'Pushya', label: 'Pushya' },
+        { value: 'Ashlesha', label: 'Ashlesha' },
+        { value: 'Magha', label: 'Magha' },
+        { value: 'Purva Phalguni', label: 'Purva Phalguni' },
+        { value: 'Uttara Phalguni', label: 'Uttara Phalguni' },
+        { value: 'Hasta', label: 'Hasta' },
+        { value: 'Chitra', label: 'Chitra' },
+        { value: 'Swati', label: 'Swati' },
+        { value: 'Vishakha', label: 'Vishakha' },
+        { value: 'Anuradha', label: 'Anuradha' },
+        { value: 'Jyeshtha', label: 'Jyeshtha' },
+        { value: 'Moola', label: 'Moola' },
+        { value: 'Purva Ashadha', label: 'Purva Ashadha' },
+        { value: 'Uttara Ashadha', label: 'Uttara Ashadha' },
+        { value: 'Shravana', label: 'Shravana' },
+        { value: 'Dhanishta', label: 'Dhanishta' },
+        { value: 'Shatabhisha', label: 'Shatabhisha' },
+        { value: 'Purva Bhadrapada', label: 'Purva Bhadrapada' },
+        { value: 'Uttara Bhadrapada', label: 'Uttara Bhadrapada' },
+        { value: 'Revathi', label: 'Revathi' }
+    ];
+
+    const DOSHAM_OPTIONS = [
+        { value: 'No', label: 'No' },
+        { value: 'Yes', label: 'Yes' },
+        { value: 'Don\'t Know', label: 'Don\'t Know' }
+    ];
+
+    const GOTHIRAM_OPTIONS = [
+        { value: 'Kasyapa', label: 'Kasyapa' },
+        { value: 'Bharadwaja', label: 'Bharadwaja' },
+        { value: 'Vatsa', label: 'Vatsa' },
+        { value: 'Sandilya', label: 'Sandilya' },
+        { value: 'Kaundinya', label: 'Kaundinya' },
+        { value: 'Gautama', label: 'Gautama' },
+        { value: 'Atri', label: 'Atri' },
+        { value: 'Vishwamitra', label: 'Vishwamitra' },
+        { value: 'Jamadagni', label: 'Jamadagni' },
+        { value: 'Vasishta', label: 'Vasishta' },
+        { value: 'Agastya', label: 'Agastya' },
+        { value: 'Other', label: 'Other' }
+    ];
+
+    const SUB_CASTE_OPTIONS = [
+        { value: 'Iyer', label: 'Iyer' },
+        { value: 'Iyengar', label: 'Iyengar' },
+        { value: 'Saiva Pillai', label: 'Saiva Pillai' },
+        { value: 'Karkathar', label: 'Karkathar' },
+        { value: 'Kongu Vellalar', label: 'Kongu Vellalar' },
+        { value: 'Other', label: 'Other' }
+    ];
+
+    const KULAM_OPTIONS = [
+        { value: 'Othuvaal', label: 'Othuvaal' },
+        { value: 'Pattariar', label: 'Pattariar' },
+        { value: 'Siva', label: 'Siva' },
+        { value: 'Vishnu', label: 'Vishnu' },
+        { value: 'Other', label: 'Other' }
+    ];
+
+    const KULLADHEIVAM_OPTIONS = [
+        { value: 'Amman', label: 'Amman' },
+        { value: 'Murugan', label: 'Murugan' },
+        { value: 'Shiva', label: 'Shiva' },
+        { value: 'Vishnu', label: 'Vishnu' },
+        { value: 'Ayyanar', label: 'Ayyanar' },
+        { value: 'Karuppasamy', label: 'Karuppasamy' },
+        { value: 'Other', label: 'Other' }
+    ];
+
     useEffect(() => {
         fetchProfile();
     }, []);
@@ -236,12 +356,42 @@ const Profile = () => {
                         <SectionHeader title="Religious Details" sectionName="religious" />
                         {editingSection === 'religious' ? (
                             <div className="grid grid-cols-1 gap-4">
-                                <Input label="Religion" value={formData.religious?.religion || ''} onChange={(e) => handleChange('religious', 'religion', e.target.value)} />
-                                <Input label="Caste" value={formData.religious?.caste || ''} onChange={(e) => handleChange('religious', 'caste', e.target.value)} />
-                                <Input label="Sub Caste" value={formData.religious?.subCaste || ''} onChange={(e) => handleChange('religious', 'subCaste', e.target.value)} />
-                                <Input label="Gothiram" value={formData.religious?.gothiram || ''} onChange={(e) => handleChange('religious', 'gothiram', e.target.value)} />
-                                <Input label="Kulam" value={formData.religious?.kulam || ''} onChange={(e) => handleChange('religious', 'kulam', e.target.value)} />
-                                <Input label="Kulladheivam" value={formData.religious?.kulladheivam || ''} onChange={(e) => handleChange('religious', 'kulladheivam', e.target.value)} />
+                                <Select
+                                    label="Religion"
+                                    options={RELIGION_OPTIONS}
+                                    value={formData.religious?.religion || ''}
+                                    onChange={(e) => handleChange('religious', 'religion', e.target.value)}
+                                />
+                                <Select
+                                    label="Caste"
+                                    options={CASTE_OPTIONS}
+                                    value={formData.religious?.caste || ''}
+                                    onChange={(e) => handleChange('religious', 'caste', e.target.value)}
+                                />
+                                <Select
+                                    label="Sub Caste"
+                                    options={SUB_CASTE_OPTIONS}
+                                    value={formData.religious?.subCaste || ''}
+                                    onChange={(e) => handleChange('religious', 'subCaste', e.target.value)}
+                                />
+                                <Select
+                                    label="Gothiram"
+                                    options={GOTHIRAM_OPTIONS}
+                                    value={formData.religious?.gothiram || ''}
+                                    onChange={(e) => handleChange('religious', 'gothiram', e.target.value)}
+                                />
+                                <Select
+                                    label="Kulam"
+                                    options={KULAM_OPTIONS}
+                                    value={formData.religious?.kulam || ''}
+                                    onChange={(e) => handleChange('religious', 'kulam', e.target.value)}
+                                />
+                                <Select
+                                    label="Kulladheivam"
+                                    options={KULLADHEIVAM_OPTIONS}
+                                    value={formData.religious?.kulladheivam || ''}
+                                    onChange={(e) => handleChange('religious', 'kulladheivam', e.target.value)}
+                                />
                             </div>
                         ) : (
                             <div className="space-y-1">
@@ -350,11 +500,21 @@ const Profile = () => {
                         <SectionHeader title="Astrological Details" sectionName="astrological" />
                         {editingSection === 'astrological' ? (
                             <div className="grid grid-cols-1 gap-4">
-                                <Input label="Rassi" value={formData.astrological?.rassi || ''} onChange={(e) => handleChange('astrological', 'rassi', e.target.value)} />
-                                <Input label="Natchathiram" value={formData.astrological?.natchathiram || ''} onChange={(e) => handleChange('astrological', 'natchathiram', e.target.value)} />
+                                <Select
+                                    label="Rassi"
+                                    options={RASI_OPTIONS}
+                                    value={formData.astrological?.rassi || ''}
+                                    onChange={(e) => handleChange('astrological', 'rassi', e.target.value)}
+                                />
+                                <Select
+                                    label="Natchathiram"
+                                    options={NATCHATHIRAM_OPTIONS}
+                                    value={formData.astrological?.natchathiram || ''}
+                                    onChange={(e) => handleChange('astrological', 'natchathiram', e.target.value)}
+                                />
                                 <Select
                                     label="Dosham"
-                                    options={[{ value: 'No', label: 'No' }, { value: 'Yes', label: 'Yes' }, { value: 'Don\'t Know', label: 'Don\'t Know' }]}
+                                    options={DOSHAM_OPTIONS}
                                     value={formData.astrological?.dosham || ''}
                                     onChange={(e) => handleChange('astrological', 'dosham', e.target.value)}
                                 />
