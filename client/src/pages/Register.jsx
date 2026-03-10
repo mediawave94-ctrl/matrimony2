@@ -47,8 +47,8 @@ const Register = () => {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-primary mb-2">Join Bondly</h1>
-                    <p className="text-gray-600">Create your profile to get started</p>
+                    <h1 className="text-4xl font-bold text-primary mb-2">Join Shisya</h1>
+                    <p className="text-gray-600">Create your profile to find your partner</p>
                 </div>
 
                 <Card title="Create Account">
