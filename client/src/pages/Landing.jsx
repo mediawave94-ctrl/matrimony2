@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import RegistrationHeroForm from '../components/RegistrationHeroForm';
@@ -6,6 +6,8 @@ import ManagerImg from '../assets/manager.png';
 import HeroIllustration from '../assets/hero_illustration.png';
 
 const Landing = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen w-full bg-white font-sans selection:bg-brand-maroon/20">
       {/* ================= NAVBAR ================= */}
@@ -25,14 +27,42 @@ const Landing = () => {
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center gap-1 cursor-pointer group">
+            <div className="hidden md:flex items-center gap-1 cursor-pointer group">
               <span className="text-gray-600 font-medium group-hover:text-brand-maroon transition-colors">Help</span>
               <svg className="w-4 h-4 text-gray-400 group-hover:text-brand-maroon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-gray-900 focus:outline-none p-2 bg-brand-light-gold rounded-lg">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-6 shadow-xl absolute w-full top-20 left-0 flex flex-col gap-4">
+            <span className="text-sm text-gray-600 font-medium text-center">Already a member?</span>
+            <Link to="/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button variant="outline" className="w-full text-brand-maroon border-brand-maroon hover:bg-red-50 px-6 py-3 rounded-xl">
+                LOGIN TO ACCOUNT
+              </Button>
+            </Link>
+            <div className="flex items-center justify-center gap-1 cursor-pointer group mt-2 pt-4 border-t border-gray-100">
+              <span className="text-gray-600 font-medium group-hover:text-brand-maroon transition-colors text-center">Need Help?</span>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ================= HERO SECTION ================= */}
@@ -44,12 +74,12 @@ const Landing = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-20 items-center">
 
             {/* LEFT CONTENT */}
-            <div className="mb-16 lg:mb-0">
+            <div className="mb-12 lg:mb-0 text-center lg:text-left">
               <h1 className="text-4xl md:text-5xl xl:text-6xl font-black text-gray-900 leading-[1.1] mb-8">
                 The <span className="text-brand-maroon italic">biggest</span> and most <span className="text-brand-maroon underline decoration-brand-gold/30">trusted</span> matrimony service for you.
               </h1>
 
-              <div className="relative w-full max-w-lg aspect-square mb-6 group">
+              <div className="relative w-full max-w-lg aspect-square mb-6 group mx-auto lg:mx-0">
                 <div className="absolute inset-0 bg-brand-maroon/10 rounded-3xl -rotate-3 transition-transform group-hover:rotate-0 duration-500" />
                 <img
                   src={HeroIllustration}
@@ -118,12 +148,12 @@ const Landing = () => {
       {/* ================= ASSISTED SERVICE SECTION ================= */}
       <section className="py-24 bg-brand-light-gold relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
+          <div className="flex flex-col lg:flex-row items-center gap-16 text-center lg:text-left">
 
-            <div className="flex-1 space-y-8">
+            <div className="flex-1 space-y-8 flex flex-col items-center lg:items-start">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-brand-maroon rounded-full flex items-center justify-center text-white font-bold text-xl text-gold">S</div>
-                <div>
+                <div className="text-left">
                   <h3 className="text-2xl font-bold text-gray-900 leading-tight">Assisted Service</h3>
                   <p className="text-sm text-gray-500">Personalised matchmaking service</p>
                 </div>
