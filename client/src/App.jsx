@@ -17,6 +17,8 @@ import Footer from './components/layout/Footer';
 
 import UserProfile from './pages/UserProfile';
 
+import { Toaster } from 'react-hot-toast';
+
 const Layout = ({ children }) => (
   <div className="flex flex-col min-h-screen font-sans text-gray-900">
     <Header />
@@ -24,6 +26,7 @@ const Layout = ({ children }) => (
       {children}
     </main>
     <Footer />
+    <Toaster position="bottom-center" />
   </div>
 );
 

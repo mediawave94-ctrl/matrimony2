@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-
 import ConnectModal from '../components/ConnectModal';
+import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
     const [matches, setMatches] = useState([]);
@@ -12,6 +12,7 @@ const Dashboard = () => {
     const [error, setError] = useState('');
     const [needsQuiz, setNeedsQuiz] = useState(false);
     const [unreadMessages, setUnreadMessages] = useState(0);
+    const [currentUser, setCurrentUser] = useState(null);
 
     // Filters
     const [filters, setFilters] = useState({
@@ -101,7 +102,23 @@ const Dashboard = () => {
             }
         };
 
-        Promise.all([fetchMatches(), fetchAllProfiles(), fetchUnreadCount()]).finally(() => {
+        const fetchCurrentUser = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/users/profile', {
+                    headers: { 'x-auth-token': token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setCurrentUser(data);
+                }
+            } catch (err) {
+                console.error('Error fetching current user:', err);
+            }
+        };
+
+        Promise.all([fetchMatches(), fetchAllProfiles(), fetchUnreadCount(), fetchCurrentUser()]).finally(() => {
             setLoading(false);
         });
 
@@ -142,12 +159,49 @@ const Dashboard = () => {
             } else {
                 const data = await res.json();
                 if (res.status === 403 && data.code === 'PREMIUM_REQUIRED') {
-                    if (window.confirm('You need to be a Premium Member to connect. Upgrade now?')) {
-                        navigate('/pricing');
-                    }
+                    toast.custom((t) => (
+                        <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white shadow-2xl rounded-2xl border border-gray-100 pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
+                            <div className="flex-1 w-0 p-5">
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0 pt-0.5">
+                                        <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-500">
+                                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div className="ml-4 flex-1">
+                                        <p className="text-sm font-bold text-gray-900">
+                                            Premium Required
+                                        </p>
+                                        <p className="mt-1 text-sm text-gray-500 font-medium">
+                                            You need to be a Premium Member to connect. Upgrade now?
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex gap-3">
+                                    <button
+                                        onClick={() => {
+                                            toast.dismiss(t.id);
+                                            navigate('/pricing');
+                                        }}
+                                        className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-secondary hover:bg-secondary-hover focus:outline-none"
+                                    >
+                                        Upgrade
+                                    </button>
+                                    <button
+                                        onClick={() => toast.dismiss(t.id)}
+                                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ), { duration: 5000, position: 'top-center' });
                     setIsConnectModalOpen(false);
                 } else {
-                    alert(data.msg || 'Failed to send request');
+                    toast.error(data.msg || 'Failed to send request');
                 }
             }
         } catch (err) {
@@ -169,7 +223,7 @@ const Dashboard = () => {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-900"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
     );
 
@@ -208,6 +262,21 @@ const Dashboard = () => {
     // ...
 
     // ...
+
+    const calculateCompleteness = (userProfile) => {
+        if (!userProfile) return 0;
+        let weight = 0;
+        let max = 5;
+        if (userProfile.basicDetails?.photoUrl && userProfile.basicDetails?.dob) weight++;
+        if (userProfile.religious?.religion && userProfile.religious?.caste) weight++;
+        if (userProfile.professional?.occupation) weight++;
+        if (userProfile.location?.city) weight++;
+        if (userProfile.family?.fatherName) weight++;
+        return Math.round((weight / max) * 100);
+    };
+
+    const profilePercent = calculateCompleteness(currentUser);
+
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
@@ -216,18 +285,35 @@ const Dashboard = () => {
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Your Weekly Matches</h1>
                         <p className="text-sm text-gray-500 mt-1">Curated based on your Compatibility DNA</p>
                     </div>
-                    <div className="flex w-full sm:w-auto gap-3">
-                        <Button onClick={() => navigate('/messages')} variant="secondary" className="flex-1 sm:flex-none flex items-center justify-center gap-2 py-2.5 relative">
-                            <span>💬</span> Messages
-                            {unreadMessages > 0 && (
-                                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                                    {unreadMessages}
-                                </span>
-                            )}
-                        </Button>
-                        <Button onClick={() => navigate('/profile')} className="flex-1 sm:flex-none py-2.5">
-                            My Profile
-                        </Button>
+                    <div className="flex flex-col sm:items-end w-full sm:w-auto gap-2">
+                        <div className="flex w-full sm:w-auto gap-3">
+                            <Button onClick={() => navigate('/messages')} variant="secondary" className="flex-1 sm:flex-none flex items-center justify-center gap-2 py-2.5 relative">
+                                <span>💬</span> Messages
+                                {unreadMessages > 0 && (
+                                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                                        {unreadMessages}
+                                    </span>
+                                )}
+                            </Button>
+                            <Button onClick={() => navigate('/profile')} className="flex-1 sm:flex-none py-2.5">
+                                My Profile
+                            </Button>
+                        </div>
+                        {/* Profile Completeness Scale */}
+                        {currentUser && (
+                            <div className="w-full mt-2 cursor-pointer group" onClick={() => navigate('/profile')}>
+                                <div className="flex justify-between items-center text-xs mb-1">
+                                    <span className="font-bold text-gray-600 group-hover:text-primary transition-colors">Profile Completeness</span>
+                                    <span className={`font-black ${profilePercent === 100 ? 'text-green-600' : 'text-primary'}`}>{profilePercent}%</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                    <div 
+                                        className={`h-1.5 rounded-full transition-all duration-1000 ${profilePercent === 100 ? 'bg-green-500' : 'bg-primary'}`} 
+                                        style={{ width: `${profilePercent}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </header>
 
@@ -282,7 +368,7 @@ const Dashboard = () => {
                                     )}
 
                                     <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                        <div className={`bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-rose-100`}>
+                                        <div className={`bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-accent`}>
                                             <span className={`text-lg font-bold leading-none ${getScoreColor(match.compatibility.total)}`}>
                                                 {match.compatibility.total}%
                                             </span>
@@ -350,22 +436,22 @@ const Dashboard = () => {
                     </div>
 
                     {/* Filter Bar */}
-                    <div className="w-full flex flex-col gap-4 bg-white p-6 rounded-3xl border border-rose-100 shadow-sm">
+                    <div className="w-full flex flex-col gap-4 bg-white p-6 rounded-3xl border border-accent shadow-sm">
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            <input name="minAge" type="number" placeholder="Min Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.minAge} onChange={handleFilterChange} />
-                            <input name="maxAge" type="number" placeholder="Max Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.maxAge} onChange={handleFilterChange} />
-                            <input name="city" placeholder="City" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.city} onChange={handleFilterChange} />
-                            <input name="religion" placeholder="Religion" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.religion} onChange={handleFilterChange} />
-                            <input name="caste" placeholder="Caste" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.caste} onChange={handleFilterChange} />
-                            <input name="rassi" placeholder="Rassi" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.rassi} onChange={handleFilterChange} />
-                            <input name="natchathiram" placeholder="Natchathiram" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.natchathiram} onChange={handleFilterChange} />
-                            <select name="dosham" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-rose-500" value={filters.dosham} onChange={handleFilterChange}>
+                            <input name="minAge" type="number" placeholder="Min Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.minAge} onChange={handleFilterChange} />
+                            <input name="maxAge" type="number" placeholder="Max Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.maxAge} onChange={handleFilterChange} />
+                            <input name="city" placeholder="City" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.city} onChange={handleFilterChange} />
+                            <input name="religion" placeholder="Religion" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.religion} onChange={handleFilterChange} />
+                            <input name="caste" placeholder="Caste" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.caste} onChange={handleFilterChange} />
+                            <input name="rassi" placeholder="Rassi" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.rassi} onChange={handleFilterChange} />
+                            <input name="natchathiram" placeholder="Natchathiram" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.natchathiram} onChange={handleFilterChange} />
+                            <select name="dosham" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.dosham} onChange={handleFilterChange}>
                                 <option value="">Dosham?</option>
                                 <option value="No">No</option>
                                 <option value="Yes">Yes</option>
                                 <option value="Unknown">Unknown</option>
                             </select>
-                            <Button onClick={applyFilters} className="bg-rose-900 hover:bg-rose-950 text-amber-400 font-bold rounded-xl shadow-lg shadow-rose-900/20 col-span-2 md:col-span-1">
+                            <Button onClick={applyFilters} className="bg-primary hover:bg-primary-hover text-white font-bold rounded-xl shadow-lg shadow-primary/20 col-span-2 md:col-span-1">
                                 Apply Filters
                             </Button>
                         </div>
@@ -418,7 +504,7 @@ const Dashboard = () => {
                                     )}
 
                                     <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[90%] flex justify-between items-center pointer-events-none">
-                                        <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-rose-100 flex flex-col items-center min-w-[45px]`}>
+                                        <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-accent flex flex-col items-center min-w-[45px]`}>
                                             <span className={`text-xs font-bold leading-none ${getScoreColor(profile.compatibility?.total || 0)}`}>
                                                 {profile.compatibility?.total || 0}%
                                             </span>

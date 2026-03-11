@@ -111,22 +111,17 @@ const Header = () => {
     };
 
     return (
-        <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-[60] transition-all duration-300">
+        <header className="bg-white shadow-sm sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     <div className="flex-shrink-0">
-                        <Link to="/" className="flex items-center gap-4 group">
-                            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-secondary shadow-xl group-hover:shadow-primary/30 transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110">
+                        <Link to="/" className="flex items-center gap-3 group">
+                            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary shadow-lg group-hover:shadow-primary/30 transition-all duration-300 transform group-hover:-rotate-3">
                                 <span className="text-2xl">💍</span>
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-2xl font-serif font-black text-gray-900 tracking-tighter leading-none group-hover:text-primary transition-colors">
-                                    Shisya
-                                </span>
-                                <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-secondary leading-none mt-1">
-                                    Matrimony
-                                </span>
-                            </div>
+                            <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight">
+                                Shisya <span className="text-secondary">Matrimony</span>
+                            </span>
                         </Link>
                     </div>
 
@@ -134,19 +129,19 @@ const Header = () => {
                     <nav className="hidden md:flex items-center space-x-6">
                         {isAuthenticated ? (
                             <div className="flex items-center gap-6">
-                                <Link to="/dashboard" className="text-gray-600 hover:text-primary font-bold text-sm tracking-wide transition-colors">
-                                    DASHBOARD
+                                <Link to="/dashboard" className="text-gray-600 hover:text-primary font-medium transition-colors">
+                                    Dashboard
                                 </Link>
 
-                                <Link to="/messages" className="relative group text-gray-600 hover:text-primary font-bold text-sm tracking-wide transition-colors">
-                                    MESSAGES
+                                <Link to="/messages" className="relative group text-gray-600 hover:text-primary font-medium transition-colors">
+                                    Messages
                                     <UnreadBadge />
                                 </Link>
 
                                 <div className="relative notification-container">
                                     <button
                                         onClick={toggleNotification}
-                                        className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-50 text-gray-400 hover:text-primary hover:bg-primary/5 transition-all duration-300 relative group"
+                                        className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:text-primary hover:bg-primary/5 transition-all duration-300 relative group"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill={isNotificationOpen ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -160,23 +155,21 @@ const Header = () => {
                                     <NotificationPanel isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
                                 </div>
 
-                                <div className="h-8 w-px bg-gray-200"></div>
+                                <div className="h-6 w-px bg-gray-200"></div>
 
-                                <Button variant="ghost" onClick={handleLogout} className="text-gray-500 hover:text-red-600 font-bold text-xs tracking-widest">
-                                    LOGOUT
+                                <Button variant="ghost" onClick={handleLogout} className="text-gray-500 hover:text-red-600">
+                                    Sign Out
                                 </Button>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-4">
+                            <>
                                 <Link to="/login">
-                                    <Button variant="ghost" className="text-gray-600 hover:text-primary font-bold">Sign In</Button>
+                                    <Button variant="ghost" className="text-gray-600 hover:text-primary">Login</Button>
                                 </Link>
                                 <Link to="/register">
-                                    <Button className="bg-primary hover:bg-primary-hover text-white shadow-xl shadow-primary/20 px-8 py-3 rounded-2xl font-bold">
-                                        Join Now
-                                    </Button>
+                                    <Button className="bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20">Register Free</Button>
                                 </Link>
-                            </div>
+                            </>
                         )}
                     </nav>
 

@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', gender: 'male' });
-    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const [formData, setFormData] = useState({
+        name: location.state?.name || '',
+        mobile: location.state?.mobile || '',
+        email: '',
+        password: '',
+        gender: 'male'
+    });
+    const [error, setError] = useState('');
 
     // Redirect if already logged in
-    React.useEffect(() => {
+    useEffect(() => {
         if (localStorage.getItem('token')) {
             navigate('/dashboard');
         }
@@ -44,16 +52,17 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-brand-light-gold flex items-center justify-center p-4">
             <div className="max-w-md w-full">
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-primary mb-2">Join Shisya</h1>
-                    <p className="text-gray-600">Create your profile to find your partner</p>
+                    <h1 className="text-4xl font-black text-primary mb-2 tracking-tighter">Bondly<span className="text-secondary">.</span></h1>
+                    <p className="text-gray-600 font-medium">Create your profile to get started</p>
                 </div>
 
                 <Card title="Create Account">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
+                        <Input label="Mobile Number" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="+91 XXXXX XXXXX" required />
 
                         <div className="flex flex-col gap-1">
                             <label className="text-sm font-medium text-gray-700 ml-1">Gender</label>
@@ -75,7 +84,7 @@ const Register = () => {
                         {error && <div className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
 
                         <div className="pt-2">
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" variant="secondary" className="w-full">
                                 Register
                             </Button>
                             <p className="text-center text-sm text-gray-600 mt-4">
