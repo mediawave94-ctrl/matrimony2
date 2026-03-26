@@ -14,8 +14,8 @@ const Landing = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">B</div>
-            <span className="text-2xl font-black tracking-tighter text-gray-900">Bondly<span className="text-brand-maroon">.</span></span>
+            {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SM</div> */}
+            <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -75,8 +75,8 @@ const Landing = () => {
 
             {/* LEFT CONTENT */}
             <div className="mb-12 lg:mb-0 text-center lg:text-left">
-              <h1 className="text-4xl md:text-5xl xl:text-6xl font-black text-gray-900 leading-[1.1] mb-8">
-                The <span className="text-brand-maroon italic">biggest</span> and most <span className="text-brand-maroon underline decoration-brand-gold/30">trusted</span> matrimony service for you.
+              <h1 className="text-2xl md:text-3xl xl:text-4xl font-black text-gray-900 leading-[1.1] mb-8">
+                The <span className="text-brand-gold">Biggest</span> and most <span className="text-brand-gold">Trusted</span> matrimony service for you.
               </h1>
 
               <div className="relative w-full max-w-lg aspect-square mb-6 group mx-auto lg:mx-0">
@@ -88,7 +88,7 @@ const Landing = () => {
                 />
                 <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl z-20 hidden md:block border border-gray-100">
                   <div className="flex flex-col items-center">
-                    <span className="text-3xl font-black text-brand-maroon italic leading-none">Celebrating!</span>
+                    <span className="text-3xl font-black text-brand-gold leading-none">Celebrating!</span>
                     <span className="text-lg font-bold text-gray-500 uppercase tracking-widest mt-1">Found Love Here</span>
                   </div>
                 </div>
