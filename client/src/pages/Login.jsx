@@ -52,12 +52,12 @@ const Login = () => {
         <div className="min-h-screen bg-brand-light-gold flex items-center justify-center p-4 selection:bg-brand-maroon/20">
             <div className="max-w-sm w-full">
                 
-                <div className="text-center mb-10">
+                {/* <div className="text-center mb-10">
                     <Link to="/" className="inline-block">
                         <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
                     </Link>
-                    {/* <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-4">Match by Values, Not Just Photos</p> */}
-                </div>
+                    <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-4">Match by Values, Not Just Photos</p>
+                </div> */}
 
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                     <div className="bg-brand-maroon py-4 px-6 text-center shadow-lg">

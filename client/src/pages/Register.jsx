@@ -52,15 +52,15 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-brand-light-gold flex items-center justify-center p-4 selection:bg-brand-maroon/20">
+        <div className="min-h-screen  bg-brand-light-gold flex items-center justify-center p-4 selection:bg-brand-maroon/20">
             <div className="max-w-md w-full">
-                <div className="text-center mb-10">
-                    <Link to="/" className="inline-block">
-                        <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
-                    </Link>
-                </div>
+                    {/* <div className="text-center mb-10">
+                        <Link to="/" className="inline-block">
+                            <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+                        </Link>
+                    </div> */}
 
-                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                <div className="bg-white  rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                     <div className="bg-brand-maroon py-4 px-6 text-center shadow-lg">
                         <h3 className="text-brand-gold font-bold text-xl">Create Account</h3>
                     </div>

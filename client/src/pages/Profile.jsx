@@ -3,134 +3,63 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Select from '../components/ui/Select';
-import Card from '../components/ui/Card';
 import FileUpload from '../components/ui/FileUpload';
+import { toast } from 'react-hot-toast';
 
 const Profile = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [editingSection, setEditingSection] = useState(null); // 'basic', 'religious', etc.
+    const [editingSection, setEditingSection] = useState(null);
     const [formData, setFormData] = useState({});
+    const [showAllDetails, setShowAllDetails] = useState(false);
     const navigate = useNavigate();
 
-    // -- Constants for Dropdowns --
+    // -- Options --
+    const MARITAL_STATUS_OPTIONS = [
+        { value: 'Single', label: 'Single' },
+        { value: 'Married', label: 'Married' },
+        { value: 'Divorced', label: 'Divorced' },
+        { value: 'Widowed', label: 'Widowed' },
+        { value: 'Awaiting Divorce', label: 'Awaiting Divorce' },
+    ];
+
     const RELIGION_OPTIONS = [
         { value: 'Hindu', label: 'Hindu' },
         { value: 'Christian', label: 'Christian' },
         { value: 'Muslim', label: 'Muslim' },
         { value: 'Sikh', label: 'Sikh' },
         { value: 'Jain', label: 'Jain' },
-        { value: 'Buddhist', label: 'Buddhist' },
-        { value: 'Other', label: 'Other' }
     ];
 
-    const CASTE_OPTIONS = [
-        { value: 'Adidravidar', label: 'Adidravidar' },
-        { value: 'Brahmin', label: 'Brahmin' },
-        { value: 'Chettiar', label: 'Chettiar' },
-        { value: 'Gounder', label: 'Gounder' },
-        { value: 'Mudaliar', label: 'Mudaliar' },
-        { value: 'Nadar', label: 'Nadar' },
-        { value: 'Pillai', label: 'Pillai' },
-        { value: 'Thevar', label: 'Thevar' },
-        { value: 'Vanniyar', label: 'Vanniyar' },
-        { value: 'Vellalar', label: 'Vellalar' },
-        { value: 'Vishwakarma', label: 'Vishwakarma' },
-        { value: 'Yadava', label: 'Yadava' },
-        { value: 'Other', label: 'Other' }
+    const FAMILY_TYPE_OPTIONS = [
+        { value: 'Joint', label: 'Joint' },
+        { value: 'Nuclear', label: 'Nuclear' },
     ];
 
-    const RASI_OPTIONS = [
-        { value: 'Mesha', label: 'Mesha (Aries)' },
-        { value: 'Rishaba', label: 'Rishaba (Taurus)' },
-        { value: 'Mithuna', label: 'Mithuna (Gemini)' },
-        { value: 'Karka', label: 'Karka (Cancer)' },
-        { value: 'Simha', label: 'Simha (Leo)' },
-        { value: 'Kanya', label: 'Kanya (Virgo)' },
-        { value: 'Thula', label: 'Thula (Libra)' },
-        { value: 'Vrischika', label: 'Vrischika (Scorpio)' },
-        { value: 'Dhanus', label: 'Dhanus (Sagittarius)' },
-        { value: 'Makara', label: 'Makara (Capricorn)' },
-        { value: 'Kumbha', label: 'Kumbha (Aquarius)' },
-        { value: 'Meena', label: 'Meena (Pisces)' }
+    const FAMILY_STATUS_OPTIONS = [
+        { value: 'Middle Class', label: 'Middle Class' },
+        { value: 'Upper Middle Class', label: 'Upper Middle Class' },
+        { value: 'Rich', label: 'Rich' },
+        { value: 'Affluent', label: 'Affluent' },
     ];
 
-    const NATCHATHIRAM_OPTIONS = [
-        { value: 'Aswini', label: 'Aswini' },
-        { value: 'Bharani', label: 'Bharani' },
-        { value: 'Krithika', label: 'Krithika' },
-        { value: 'Rohini', label: 'Rohini' },
-        { value: 'Mrigashira', label: 'Mrigashira' },
-        { value: 'Arudra', label: 'Arudra' },
-        { value: 'Punarvasu', label: 'Punarvasu' },
-        { value: 'Pushya', label: 'Pushya' },
-        { value: 'Ashlesha', label: 'Ashlesha' },
-        { value: 'Magha', label: 'Magha' },
-        { value: 'Purva Phalguni', label: 'Purva Phalguni' },
-        { value: 'Uttara Phalguni', label: 'Uttara Phalguni' },
-        { value: 'Hasta', label: 'Hasta' },
-        { value: 'Chitra', label: 'Chitra' },
-        { value: 'Swati', label: 'Swati' },
-        { value: 'Vishakha', label: 'Vishakha' },
-        { value: 'Anuradha', label: 'Anuradha' },
-        { value: 'Jyeshtha', label: 'Jyeshtha' },
-        { value: 'Moola', label: 'Moola' },
-        { value: 'Purva Ashadha', label: 'Purva Ashadha' },
-        { value: 'Uttara Ashadha', label: 'Uttara Ashadha' },
-        { value: 'Shravana', label: 'Shravana' },
-        { value: 'Dhanishta', label: 'Dhanishta' },
-        { value: 'Shatabhisha', label: 'Shatabhisha' },
-        { value: 'Purva Bhadrapada', label: 'Purva Bhadrapada' },
-        { value: 'Uttara Bhadrapada', label: 'Uttara Bhadrapada' },
-        { value: 'Revathi', label: 'Revathi' }
+    const EMPLOYED_IN_OPTIONS = [
+        { value: 'Private', label: 'Private' },
+        { value: 'Government', label: 'Government' },
+        { value: 'Business', label: 'Business' },
+        { value: 'Self Employed', label: 'Self Employed' },
     ];
 
-    const DOSHAM_OPTIONS = [
+    const HABIT_OPTIONS = [
         { value: 'No', label: 'No' },
-        { value: 'Yes', label: 'Yes' },
-        { value: 'Don\'t Know', label: 'Don\'t Know' }
+        { value: 'Occasionally', label: 'Occasionally' },
+        { value: 'Regularly', label: 'Regularly' },
     ];
 
-    const GOTHIRAM_OPTIONS = [
-        { value: 'Kasyapa', label: 'Kasyapa' },
-        { value: 'Bharadwaja', label: 'Bharadwaja' },
-        { value: 'Vatsa', label: 'Vatsa' },
-        { value: 'Sandilya', label: 'Sandilya' },
-        { value: 'Kaundinya', label: 'Kaundinya' },
-        { value: 'Gautama', label: 'Gautama' },
-        { value: 'Atri', label: 'Atri' },
-        { value: 'Vishwamitra', label: 'Vishwamitra' },
-        { value: 'Jamadagni', label: 'Jamadagni' },
-        { value: 'Vasishta', label: 'Vasishta' },
-        { value: 'Agastya', label: 'Agastya' },
-        { value: 'Other', label: 'Other' }
-    ];
-
-    const SUB_CASTE_OPTIONS = [
-        { value: 'Iyer', label: 'Iyer' },
-        { value: 'Iyengar', label: 'Iyengar' },
-        { value: 'Saiva Pillai', label: 'Saiva Pillai' },
-        { value: 'Karkathar', label: 'Karkathar' },
-        { value: 'Kongu Vellalar', label: 'Kongu Vellalar' },
-        { value: 'Other', label: 'Other' }
-    ];
-
-    const KULAM_OPTIONS = [
-        { value: 'Othuvaal', label: 'Othuvaal' },
-        { value: 'Pattariar', label: 'Pattariar' },
-        { value: 'Siva', label: 'Siva' },
-        { value: 'Vishnu', label: 'Vishnu' },
-        { value: 'Other', label: 'Other' }
-    ];
-
-    const KULLADHEIVAM_OPTIONS = [
-        { value: 'Amman', label: 'Amman' },
-        { value: 'Murugan', label: 'Murugan' },
-        { value: 'Shiva', label: 'Shiva' },
-        { value: 'Vishnu', label: 'Vishnu' },
-        { value: 'Ayyanar', label: 'Ayyanar' },
-        { value: 'Karuppasamy', label: 'Karuppasamy' },
-        { value: 'Other', label: 'Other' }
+    const EATING_OPTIONS = [
+        { value: 'Vegetarian', label: 'Vegetarian' },
+        { value: 'Non-Vegetarian', label: 'Non-Vegetarian' },
+        { value: 'Eggetarian', label: 'Eggetarian' },
     ];
 
     useEffect(() => {
@@ -149,15 +78,14 @@ const Profile = () => {
             });
             const data = await res.json();
             setUser(data);
-            // Initialize form data with structure
             setFormData({
                 name: data.name,
                 gender: data.gender,
                 bio: data.bio || '',
-                basicDetails: data.basicDetails || {},
+                basicDetails: data.basicDetails || { habits: {} },
                 religious: data.religious || {},
                 professional: data.professional || {},
-                location: data.location || {}, // Note: might be string in old data
+                location: data.location || {},
                 family: data.family || {},
                 astrological: data.astrological || {}
             });
@@ -168,29 +96,46 @@ const Profile = () => {
         }
     };
 
-    const handleUpdate = async (section, updatedData = null) => {
+    const handleUpdate = async (section, dataToUpdate = null) => {
         try {
             const token = localStorage.getItem('token');
-            const dataToSend = updatedData || formData;
             const res = await fetch('/api/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'x-auth-token': token
                 },
-                body: JSON.stringify(dataToSend)
+                body: JSON.stringify(dataToUpdate || formData)
             });
             const data = await res.json();
             setUser(data);
             setEditingSection(null);
+            if (dataToUpdate) {
+                setFormData(dataToUpdate);
+                toast.success('Photo updated successfully!', { icon: '📸' });
+            } else {
+                toast.success('Section updated!');
+            }
         } catch (err) {
             console.error(err);
+            toast.error('Failed to update profile');
         }
     };
 
     const handleChange = (section, field, value) => {
         if (section === 'root') {
             setFormData(prev => ({ ...prev, [field]: value }));
+        } else if (section === 'habits') {
+            setFormData(prev => ({
+                ...prev,
+                basicDetails: {
+                    ...prev.basicDetails,
+                    habits: {
+                        ...prev.basicDetails.habits,
+                        [field]: value
+                    }
+                }
+            }));
         } else {
             setFormData(prev => ({
                 ...prev,
@@ -202,356 +147,357 @@ const Profile = () => {
         }
     };
 
-    const handleNestedChange = (section, subSection, field, value) => {
-        // handle habits, etc if needed. keeping simple for now.
+    const calculateDaysLeft = (expiryDate) => {
+        if (!expiryDate) return 0;
+        const diff = new Date(expiryDate) - new Date();
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
     };
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#FDFCFB]">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#F46F4C]"></div>
+        </div>
+    );
 
-    const SectionHeader = ({ title, sectionName }) => (
-        <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            {editingSection === sectionName ? (
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setEditingSection(null)}>Cancel</Button>
-                    <Button size="sm" onClick={() => handleUpdate(sectionName)}>Save</Button>
-                </div>
-            ) : (
-                <Button variant="ghost" size="sm" onClick={() => setEditingSection(sectionName)}>Edit</Button>
+    const daysLeft = calculateDaysLeft(user.subscriptionExpiresAt);
+    const membershipType = user.subscriptionStatus === 'free' ? 'Basic' : 
+                         user.subscriptionStatus === 'premium' ? 'Premium' : 'Royal';
+
+    const SectionHeader = ({ title, sectionId }) => (
+        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+            <h3 className="text-xl font-black text-gray-900 tracking-tight">{title}</h3>
+            {editingSection !== sectionId && (
+                <button 
+                    onClick={() => setEditingSection(sectionId)}
+                    className="text-[10px] font-black text-[#F46F4C] hover:text-[#e05e3b] transition-colors uppercase tracking-widest border border-[#F46F4C]/20 px-3 py-1.5 rounded-lg"
+                >
+                    Edit
+                </button>
             )}
         </div>
     );
 
     const DisplayRow = ({ label, value }) => (
-        <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-gray-50 last:border-0">
-            <span className="text-sm text-gray-500">{label}</span>
-            <span className="font-medium text-gray-900 text-right">{value || '-'}</span>
+        <div className="flex flex-col py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 px-2 rounded-lg transition-colors">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
+            <span className="font-bold text-gray-800 text-xs mt-0.5">{value || 'Not Specified'}</span>
+        </div>
+    );
+
+    const renderSummary = () => (
+        <div className="space-y-8 animate-fadeIn">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                    { label: 'Profile Views', count: 0, color: 'blue', icon: '👁️' },
+                    { label: 'Interests', count: 0, color: 'rose', icon: '💞' },
+                    { label: 'Shortlists', count: 0, color: 'emerald', icon: '📌' },
+                ].map((stat) => (
+                    <div key={stat.label} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-inner bg-gray-50">
+                                {stat.icon}
+                            </div>
+                            <div className="text-gray-300 font-black text-[8px] uppercase tracking-widest bg-gray-50 px-2 py-1 rounded-full">Active</div>
+                        </div>
+                        <h4 className="text-2xl font-black text-gray-900 mb-0.5">{stat.count}</h4>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</p>
+                    </div>
+                ))}
+            </div>
+
+            <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-8">
+                <SectionHeader title="Basic Details" sectionId="basicDetails" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-y-1 gap-x-6">
+                    <DisplayRow label="Date of Birth" value={user.basicDetails?.dob ? new Date(user.basicDetails.dob).toLocaleDateString() : ''} />
+                    <DisplayRow label="Marital Status" value={user.basicDetails?.maritalStatus} />
+                    <DisplayRow label="Height" value={user.basicDetails?.height ? `${user.basicDetails.height} cm` : ''} />
+                    <DisplayRow label="Complexion" value={user.basicDetails?.complexion} />
+                    <DisplayRow label="Weight" value={user.basicDetails?.weight ? `${user.basicDetails.weight} kg` : ''} />
+                    <DisplayRow label="Body Type" value={user.basicDetails?.bodyType} />
+                </div>
+
+                <div className="mt-8">
+                    <SectionHeader title="Religious Details" sectionId="religious" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                        <DisplayRow label="Religion" value={user.religious?.religion} />
+                        <DisplayRow label="Caste" value={user.religious?.caste} />
+                        <DisplayRow label="Sub Caste" value={user.religious?.subCaste} />
+                        <DisplayRow label="Gothiram" value={user.religious?.gothiram} />
+                    </div>
+                </div>
+
+                <div className="mt-8">
+                    <SectionHeader title="Professional Details" sectionId="professional" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                        <DisplayRow label="Education" value={user.professional?.education} />
+                        <DisplayRow label="Employed In" value={user.professional?.employedIn} />
+                        <DisplayRow label="Occupation" value={user.professional?.occupation} />
+                        <DisplayRow label="Annual Income" value={user.professional?.annualIncome} />
+                    </div>
+                </div>
+
+                <div className="mt-8">
+                    <SectionHeader title="Location Details" sectionId="location" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                        <DisplayRow label="Country" value={user.location?.country} />
+                        <DisplayRow label="State" value={user.location?.state} />
+                        <DisplayRow label="City" value={user.location?.city} />
+                        <DisplayRow label="Citizenship" value={user.location?.citizenship} />
+                    </div>
+                </div>
+
+                {!showAllDetails ? (
+                    <div className="mt-8 flex justify-center">
+                        <button 
+                            onClick={() => setShowAllDetails(true)}
+                            className="bg-gray-900 text-white px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#F46F4C] transition-all duration-300 shadow-lg shadow-gray-100"
+                        >
+                            View Complete DNA
+                        </button>
+                    </div>
+                ) : (
+                    <div className="animate-slideDown">
+                        <div className="mt-8">
+                            <SectionHeader title="Family Details" sectionId="family" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                                <DisplayRow label="Father's Name" value={user.family?.fatherName} />
+                                <DisplayRow label="Father's Occ." value={user.family?.fatherOccupation} />
+                                <DisplayRow label="Mother's Name" value={user.family?.motherName} />
+                                <DisplayRow label="Mother's Occ." value={user.family?.motherOccupation} />
+                                <DisplayRow label="Siblings" value={user.family?.siblings} />
+                                <DisplayRow label="Family Origin" value={user.family?.familyOrigin} />
+                                <DisplayRow label="Family Type" value={user.family?.familyType} />
+                                <DisplayRow label="Family Status" value={user.family?.familyStatus} />
+                                <DisplayRow label="Family Values" value={user.family?.familyValues} />
+                            </div>
+                        </div>
+
+                        <div className="mt-8">
+                            <SectionHeader title="Lifestyle Habits" sectionId="habits" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                                <DisplayRow label="Drinking" value={user.basicDetails?.habits?.drinking} />
+                                <DisplayRow label="Smoking" value={user.basicDetails?.habits?.smoking} />
+                                <DisplayRow label="Eating" value={user.basicDetails?.habits?.eating} />
+                            </div>
+                        </div>
+
+                        <div className="mt-8">
+                            <SectionHeader title="Astrological Details" sectionId="astrological" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                                <DisplayRow label="Rassi" value={user.astrological?.rassi} />
+                                <DisplayRow label="Natchathiram" value={user.astrological?.natchathiram} />
+                                <DisplayRow label="Dosham" value={user.astrological?.dosham} />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex justify-center">
+                            <button 
+                                onClick={() => setShowAllDetails(false)}
+                                className="text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
+                            >
+                                Collapse View
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
+    const renderFormSection = (title, sectionId, fields) => (
+        <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-10 animate-fadeIn">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                   <h3 className="text-2xl font-black text-gray-900 tracking-tight">{title}</h3>
+                   <p className="text-gray-400 font-bold mt-1 text-xs">Update your {title.toLowerCase()}</p>
+                </div>
+                <div className="flex gap-2 w-full md:w-auto">
+                    <button onClick={() => setEditingSection(null)} className="flex-1 md:flex-none px-6 py-2.5 bg-gray-100 text-gray-500 text-xs font-black rounded-xl hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button onClick={() => handleUpdate(sectionId)} className="flex-1 md:flex-none px-6 py-2.5 bg-[#F46F4C] text-white text-xs font-black rounded-xl shadow-lg shadow-orange-100 active:translate-y-0 transition-all">Save Changes</button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {fields.map((f) => (
+                    <div key={f.name} className="space-y-1.5">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">{f.label}</label>
+                        {f.type === 'select' ? (
+                            <select 
+                                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-1 focus:ring-[#F46F4C] font-bold text-gray-800 text-sm transition-all appearance-none"
+                                value={f.section === 'habits' ? (formData.basicDetails?.habits?.[f.name] || '') : (formData[f.section || sectionId]?.[f.name] || '')}
+                                onChange={(e) => handleChange(f.section || sectionId, f.name, e.target.value)}
+                            >
+                                <option value="">Select {f.label}</option>
+                                {f.options.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <input 
+                                type={f.type || 'text'}
+                                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-1 focus:ring-[#F46F4C] font-bold text-gray-800 text-sm transition-all"
+                                value={f.name === 'dob' ? (formData[sectionId]?.[f.name]?.split('T')[0] || '') : (formData[f.section || sectionId]?.[f.name] || '')}
+                                onChange={(e) => handleChange(f.section || sectionId, f.name, e.target.value)}
+                                placeholder={f.label}
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="max-w-4xl mx-auto space-y-6">
-
-                {/* Header / Basic Identity */}
-                <Card className="p-6">
-                    <div className="flex flex-col md:flex-row gap-6 items-center">
-                        <div className="relative group">
-                            <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
-                                {formData.basicDetails?.photoUrl ? (
-                                    <img src={formData.basicDetails.photoUrl} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-4xl text-gray-400 font-bold">{user.name?.charAt(0)}</span>
-                                )}
-                            </div>
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <FileUpload
-                                    label=""
-                                    onUpload={(url) => {
-                                        const newBasicDetails = { ...formData.basicDetails, photoUrl: url };
-                                        setFormData(prev => ({ ...prev, basicDetails: newBasicDetails }));
-                                        handleUpdate('basicDetails', { ...formData, basicDetails: newBasicDetails });
-                                    }}
-                                    className="scale-75"
-                                />
-                            </div>
+        <div className="bg-[#FDFCFB] flex min-h-[calc(100vh-80px)]">
+            {/* ================= SIDEBAR ================= */}
+            <aside className="w-64 bg-white border-r border-gray-100 flex flex-col sticky top-20 h-[calc(100vh-80px)] overflow-y-auto shrink-0">
+                <div className="p-6 text-center border-b border-gray-50">
+                    <div className="relative inline-block group mb-4">
+                        <div className="w-32 h-32 rounded-[1.5rem] overflow-hidden border-2 border-white shadow-xl mx-auto bg-gray-50">
+                            {user.basicDetails?.photoUrl ? (
+                                <img src={user.basicDetails.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-[#F46F4C]/10 flex items-center justify-center text-[#F46F4C] text-4xl font-black">
+                                    {user.name?.charAt(0)}
+                                </div>
+                            )}
                         </div>
-                        <div className="text-center md:text-left flex-grow">
-                            <div className="flex flex-col md:flex-row md:items-center gap-2">
-                                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                                {user.subscriptionStatus && (
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${user.subscriptionStatus === 'elite' ? 'bg-purple-100 text-purple-700 border border-purple-200' :
-                                        user.subscriptionStatus === 'premium' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
-                                            'bg-gray-100 text-gray-600 border border-gray-200'
-                                        }`}>
-                                        {user.subscriptionStatus} Member
-                                    </span>
-                                )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-[1.5rem] flex items-center justify-center cursor-pointer">
+                            <FileUpload
+                                label=""
+                                onUpload={(url) => {
+                                    const updatedData = { 
+                                        ...formData, 
+                                        basicDetails: { 
+                                            ...formData.basicDetails, 
+                                            photoUrl: url 
+                                        } 
+                                    };
+                                    handleUpdate('basicDetails', updatedData);
+                                }}
+                                className="scale-50 invert grayscale"
+                            />
+                        </div>
+                    </div>
+                    <h2 className="text-xl font-black text-gray-900 leading-tight mb-0.5">{user.name}</h2>
+                    <p className="text-[9px] font-black text-[#F46F4C] uppercase tracking-[0.2em]">ID: {user._id?.slice(-6).toUpperCase()}</p>
+                </div>
+
+                <nav className="flex-1 px-4 py-6 space-y-1">
+                  {[
+                    { id: 'view', label: 'Dashboard', icon: '📊', active: !editingSection },
+                    { id: 'basicDetails', label: 'Basic Info', icon: '👤', active: editingSection === 'basicDetails' },
+                    { id: 'religious', label: 'Religious', icon: '🕍', active: editingSection === 'religious' },
+                    { id: 'professional', label: 'Career', icon: '💼', active: editingSection === 'professional' },
+                    { id: 'location', label: 'Location', icon: '📍', active: editingSection === 'location' },
+                    { id: 'family', label: 'Family', icon: '👨‍👩‍👧', active: editingSection === 'family' },
+                    { id: 'habits', label: 'Habits', icon: '🍷', active: editingSection === 'habits' },
+                    { id: 'astrological', label: 'Astrology', icon: '✨', active: editingSection === 'astrological' },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => item.id === 'view' ? setEditingSection(null) : setEditingSection(item.id)}
+                      className={`w-full flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300 font-bold text-xs ${
+                        item.active 
+                        ? 'bg-[#FFF5F0] text-[#F46F4C] shadow-sm' 
+                        : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                      }`}
+                    >
+                      <span>{item.icon}</span>
+                      {item.label}
+                    </button>
+                  ))}
+                </nav>
+            </aside>
+
+            {/* ================= MAIN CONTENT ================= */}
+            <div className="flex-1 p-8 pb-16">
+                <div className="max-w-4xl mx-auto space-y-8">
+                    
+                    {/* Membership Card */}
+                    <div className="bg-gradient-to-br from-[#F46F4C] to-[#FF9068] p-10 rounded-[2.5rem] shadow-xl shadow-orange-100 relative overflow-hidden text-white">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl">🛡️</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-80">Membership Grade</span>
+                                </div>
+                                <h3 className="text-4xl font-black tracking-tight">{membershipType} Tier</h3>
+                                <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-4">Ends on {user.subscriptionExpiresAt ? new Date(user.subscriptionExpiresAt).toLocaleDateString() : 'N/A'}</p>
                             </div>
-                            <p className="text-gray-500">ID: {user._id?.slice(-6).toUpperCase()}</p>
-                            <div className="mt-4">
-                                {editingSection === 'bio' ? (
-                                    <div className="space-y-3">
-                                        <textarea
-                                            className="w-full p-3 border rounded-xl"
-                                            rows="3"
-                                            value={formData.bio}
-                                            onChange={(e) => handleChange('root', 'bio', e.target.value)}
-                                            placeholder="Introduce yourself..."
-                                        />
-                                        <div className="flex gap-2 justify-end">
-                                            <Button size="sm" variant="outline" onClick={() => setEditingSection(null)}>Cancel</Button>
-                                            <Button size="sm" onClick={() => handleUpdate('bio')}>Save Bio</Button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="relative group cursor-pointer" onClick={() => setEditingSection('bio')}>
-                                        <p className="text-gray-600 italic">"{user.bio || 'Add a bio to introduce yourself...'}"</p>
-                                        <span className="absolute -right-6 top-0 opacity-0 group-hover:opacity-100 text-blue-500 text-xs">Edit</span>
-                                    </div>
-                                )}
+                            <div className="flex gap-3">
+                                <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[1.5rem] border border-white/20 text-center min-w-[120px]">
+                                    <p className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-70">Credits</p>
+                                    <p className="text-3xl font-black">0</p>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur-xl p-6 rounded-[1.5rem] border border-white/20 text-center min-w-[120px]">
+                                    <p className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-70">Days Left</p>
+                                    <p className="text-3xl font-black">{daysLeft}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {!editingSection ? renderSummary() : (
+                        <div className="space-y-6 animate-fadeIn">
+                            {editingSection === 'basicDetails' && renderFormSection('Basic Details', 'basicDetails', [
+                                { name: 'dob', label: 'Date of Birth', type: 'date' },
+                                { name: 'maritalStatus', label: 'Marital Status', type: 'select', options: MARITAL_STATUS_OPTIONS },
+                                { name: 'height', label: 'Height (cm)', type: 'number' },
+                                { name: 'weight', label: 'Weight (kg)', type: 'number' },
+                                { name: 'bodyType', label: 'Body Type', type: 'select', options: [{value:'Slim', label:'Slim'}, {value:'Athletic', label:'Athletic'}, {value:'Average', label:'Average'}, {value:'Heavy', label:'Heavy'}] },
+                                { name: 'complexion', label: 'Complexion', type: 'select', options: [{value:'Fair', label:'Fair'}, {value:'Very Fair', label:'Very Fair'}, {value:'Wheatish', label:'Wheatish'}, {value:'Dark', label:'Dark'}] }
+                            ])}
+                            
+                            {editingSection === 'religious' && renderFormSection('Religious Details', 'religious', [
+                                { name: 'religion', label: 'Religion' },
+                                { name: 'caste', label: 'Caste' },
+                                { name: 'subCaste', label: 'Sub-Caste' },
+                                { name: 'gothiram', label: 'Gothiram' },
+                                { name: 'kulam', label: 'Kulam' },
+                                { name: 'kulladheivam', label: 'Kulla Dheivam' }
+                            ])}
 
-                    {/* Basic Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Basic Details" sectionName="basicDetails" />
-                        {editingSection === 'basicDetails' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <FileUpload
-                                    label="Profile Photo"
-                                    onUpload={(url) => handleChange('basicDetails', 'photoUrl', url)}
-                                />
-                                {formData.basicDetails?.photoUrl && <p className="text-xs text-green-600">Photo uploaded!</p>}
+                            {editingSection === 'professional' && renderFormSection('Professional Details', 'professional', [
+                                { name: 'education', label: 'Education' },
+                                { name: 'employedIn', label: 'Employed In', type: 'select', options: EMPLOYED_IN_OPTIONS },
+                                { name: 'occupation', label: 'Occupation' },
+                                { name: 'annualIncome', label: 'Annual Income' }
+                            ])}
 
-                                <Input label="Date of Birth" type="date" value={formData.basicDetails?.dob ? new Date(formData.basicDetails.dob).toISOString().split('T')[0] : ''} onChange={(e) => handleChange('basicDetails', 'dob', e.target.value)} />
-                                <Select
-                                    label="Marital Status"
-                                    options={[{ value: 'Single', label: 'Single' }, { value: 'Married', label: 'Married' }, { value: 'Divorced', label: 'Divorced' }, { value: 'Widowed', label: 'Widowed' }]}
-                                    value={formData.basicDetails?.maritalStatus || ''}
-                                    onChange={(e) => handleChange('basicDetails', 'maritalStatus', e.target.value)}
-                                />
-                                <Select
-                                    label="Physical Status"
-                                    options={[{ value: 'Normal', label: 'Normal' }, { value: 'Physically Challenged', label: 'Physically Challenged' }]}
-                                    value={formData.basicDetails?.physicalStatus || ''}
-                                    onChange={(e) => handleChange('basicDetails', 'physicalStatus', e.target.value)}
-                                />
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Input label="Height (cm)" type="number" value={formData.basicDetails?.height || ''} onChange={(e) => handleChange('basicDetails', 'height', e.target.value)} />
-                                    <Input label="Weight (kg)" type="number" value={formData.basicDetails?.weight || ''} onChange={(e) => handleChange('basicDetails', 'weight', e.target.value)} />
-                                </div>
-                                <Select
-                                    label="Body Type"
-                                    options={[{ value: 'Slim', label: 'Slim' }, { value: 'Athletic', label: 'Athletic' }, { value: 'Average', label: 'Average' }, { value: 'Heavy', label: 'Heavy' }]}
-                                    value={formData.basicDetails?.bodyType || ''}
-                                    onChange={(e) => handleChange('basicDetails', 'bodyType', e.target.value)}
-                                />
-                                <Select
-                                    label="Complexion"
-                                    options={[{ value: 'Fair', label: 'Fair' }, { value: 'Very Fair', label: 'Very Fair' }, { value: 'Wheatish', label: 'Wheatish' }, { value: 'Dark', label: 'Dark' }]}
-                                    value={formData.basicDetails?.complexion || ''}
-                                    onChange={(e) => handleChange('basicDetails', 'complexion', e.target.value)}
-                                />
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Date of Birth" value={user.basicDetails?.dob ? new Date(user.basicDetails.dob).toLocaleDateString() : ''} />
-                                <DisplayRow label="Marital Status" value={user.basicDetails?.maritalStatus} />
-                                <DisplayRow label="Physical Status" value={user.basicDetails?.physicalStatus} />
-                                <DisplayRow label="Height" value={user.basicDetails?.height ? `${user.basicDetails.height} cm` : ''} />
-                                <DisplayRow label="Weight" value={user.basicDetails?.weight ? `${user.basicDetails.weight} kg` : ''} />
-                                <DisplayRow label="Body Type" value={user.basicDetails?.bodyType} />
-                                <DisplayRow label="Complexion" value={user.basicDetails?.complexion} />
-                            </div>
-                        )}
-                    </Card>
+                            {editingSection === 'location' && renderFormSection('Location Details', 'location', [
+                                { name: 'country', label: 'Country' },
+                                { name: 'state', label: 'State' },
+                                { name: 'city', label: 'City' },
+                                { name: 'citizenship', label: 'Citizenship' }
+                            ])}
 
-                    {/* Religious Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Religious Details" sectionName="religious" />
-                        {editingSection === 'religious' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <Select
-                                    label="Religion"
-                                    options={RELIGION_OPTIONS}
-                                    value={formData.religious?.religion || ''}
-                                    onChange={(e) => handleChange('religious', 'religion', e.target.value)}
-                                />
-                                <Select
-                                    label="Caste"
-                                    options={CASTE_OPTIONS}
-                                    value={formData.religious?.caste || ''}
-                                    onChange={(e) => handleChange('religious', 'caste', e.target.value)}
-                                />
-                                <Select
-                                    label="Sub Caste"
-                                    options={SUB_CASTE_OPTIONS}
-                                    value={formData.religious?.subCaste || ''}
-                                    onChange={(e) => handleChange('religious', 'subCaste', e.target.value)}
-                                />
-                                <Select
-                                    label="Gothiram"
-                                    options={GOTHIRAM_OPTIONS}
-                                    value={formData.religious?.gothiram || ''}
-                                    onChange={(e) => handleChange('religious', 'gothiram', e.target.value)}
-                                />
-                                <Select
-                                    label="Kulam"
-                                    options={KULAM_OPTIONS}
-                                    value={formData.religious?.kulam || ''}
-                                    onChange={(e) => handleChange('religious', 'kulam', e.target.value)}
-                                />
-                                <Select
-                                    label="Kulladheivam"
-                                    options={KULLADHEIVAM_OPTIONS}
-                                    value={formData.religious?.kulladheivam || ''}
-                                    onChange={(e) => handleChange('religious', 'kulladheivam', e.target.value)}
-                                />
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Religion" value={user.religious?.religion} />
-                                <DisplayRow label="Caste" value={user.religious?.caste} />
-                                <DisplayRow label="Sub Caste" value={user.religious?.subCaste} />
-                                <DisplayRow label="Gothiram" value={user.religious?.gothiram} />
-                                <DisplayRow label="Kulam" value={user.religious?.kulam} />
-                                <DisplayRow label="Kulladheivam" value={user.religious?.kulladheivam} />
-                            </div>
-                        )}
-                    </Card>
+                            {editingSection === 'family' && renderFormSection('Family Details', 'family', [
+                                { name: 'fatherName', label: "Father's Name" },
+                                { name: 'fatherOccupation', label: "Father's Occupation" },
+                                { name: 'motherName', label: "Mother's Name" },
+                                { name: 'motherOccupation', label: "Mother's Occupation" },
+                                { name: 'siblings', label: 'Siblings' },
+                                { name: 'familyOrigin', label: 'Family Origin' },
+                                { name: 'familyType', label: 'Family Type', type: 'select', options: FAMILY_TYPE_OPTIONS },
+                                { name: 'familyStatus', label: 'Family Status', type: 'select', options: FAMILY_STATUS_OPTIONS },
+                                { name: 'familyValues', label: 'Family Values', type: 'select', options: [{value:'Orthodox', label:'Orthodox'}, {value:'Traditional', label:'Traditional'}, {value:'Moderate', label:'Moderate'}, {value:'Liberal', label:'Liberal'}] }
+                            ])}
 
-                    {/* Professional Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Professional Details" sectionName="professional" />
-                        {editingSection === 'professional' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <Input label="Education" value={formData.professional?.education || ''} onChange={(e) => handleChange('professional', 'education', e.target.value)} />
-                                <Input label="Education Details" value={formData.professional?.educationDetails || ''} onChange={(e) => handleChange('professional', 'educationDetails', e.target.value)} />
-                                <Input label="Occupation" value={formData.professional?.occupation || ''} onChange={(e) => handleChange('professional', 'occupation', e.target.value)} />
-                                <Input label="Occupation Details" value={formData.professional?.occupationDetails || ''} onChange={(e) => handleChange('professional', 'occupationDetails', e.target.value)} />
-                                <Select
-                                    label="Employed In"
-                                    options={[{ value: 'Private', label: 'Private' }, { value: 'Government', label: 'Government' }, { value: 'Business', label: 'Business' }, { value: 'Self Employed', label: 'Self Employed' }]}
-                                    value={formData.professional?.employedIn || ''}
-                                    onChange={(e) => handleChange('professional', 'employedIn', e.target.value)}
-                                />
-                                <Input label="Annual Income" value={formData.professional?.annualIncome || ''} onChange={(e) => handleChange('professional', 'annualIncome', e.target.value)} />
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Education" value={user.professional?.education} />
-                                <DisplayRow label="Edu. Details" value={user.professional?.educationDetails} />
-                                <DisplayRow label="Occupation" value={user.professional?.occupation} />
-                                <DisplayRow label="Occ. Details" value={user.professional?.occupationDetails} />
-                                <DisplayRow label="Employed In" value={user.professional?.employedIn} />
-                                <DisplayRow label="Annual Income" value={user.professional?.annualIncome} />
-                            </div>
-                        )}
-                    </Card>
+                            {editingSection === 'habits' && renderFormSection('Lifestyle Habits', 'habits', [
+                                { name: 'drinking', label: 'Drinking Hab.', type: 'select', options: HABIT_OPTIONS, section: 'habits' },
+                                { name: 'smoking', label: 'Smoking Hab.', type: 'select', options: HABIT_OPTIONS, section: 'habits' },
+                                { name: 'eating', label: 'Eating Hab.', type: 'select', options: EATING_OPTIONS, section: 'habits' }
+                            ])}
 
-                    {/* Location Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Location Details" sectionName="location" />
-                        {editingSection === 'location' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <Input label="Country" value={formData.location?.country || ''} onChange={(e) => handleChange('location', 'country', e.target.value)} />
-                                <Input label="State" value={formData.location?.state || ''} onChange={(e) => handleChange('location', 'state', e.target.value)} />
-                                <Input label="City" value={formData.location?.city || ''} onChange={(e) => handleChange('location', 'city', e.target.value)} />
-                                <Input label="Citizenship" value={formData.location?.citizenship || ''} onChange={(e) => handleChange('location', 'citizenship', e.target.value)} />
-                                <Input label="Residing State" value={formData.location?.residingState || ''} onChange={(e) => handleChange('location', 'residingState', e.target.value)} />
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Country" value={user.location?.country} />
-                                <DisplayRow label="State" value={user.location?.state} />
-                                <DisplayRow label="City" value={user.location?.city} />
-                                <DisplayRow label="Citizenship" value={user.location?.citizenship} />
-                                <DisplayRow label="Residing State" value={user.location?.residingState} />
-                            </div>
-                        )}
-                    </Card>
-
-                    {/* Family Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Family Details" sectionName="family" />
-                        {editingSection === 'family' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <Input label="Father's Name" value={formData.family?.fatherName || ''} onChange={(e) => handleChange('family', 'fatherName', e.target.value)} />
-                                <Input label="Father's Occupation" value={formData.family?.fatherOccupation || ''} onChange={(e) => handleChange('family', 'fatherOccupation', e.target.value)} />
-                                <Input label="Mother's Name" value={formData.family?.motherName || ''} onChange={(e) => handleChange('family', 'motherName', e.target.value)} />
-                                <Input label="Mother's Occupation" value={formData.family?.motherOccupation || ''} onChange={(e) => handleChange('family', 'motherOccupation', e.target.value)} />
-                                <Input label="Siblings" value={formData.family?.siblings || ''} onChange={(e) => handleChange('family', 'siblings', e.target.value)} />
-                                <Select
-                                    label="Family Status"
-                                    options={[{ value: 'Middle Class', label: 'Middle Class' }, { value: 'Upper Middle Class', label: 'Upper Middle Class' }, { value: 'Rich', label: 'Rich' }, { value: 'Affluent', label: 'Affluent' }]}
-                                    value={formData.family?.familyStatus || ''}
-                                    onChange={(e) => handleChange('family', 'familyStatus', e.target.value)}
-                                />
-                                <Select
-                                    label="Family Type"
-                                    options={[{ value: 'Joint', label: 'Joint' }, { value: 'Nuclear', label: 'Nuclear' }]}
-                                    value={formData.family?.familyType || ''}
-                                    onChange={(e) => handleChange('family', 'familyType', e.target.value)}
-                                />
-                                <div className="col-span-1">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">About Family</label>
-                                    <textarea className="w-full px-4 py-2 rounded-xl border" rows="2" value={formData.family?.aboutFamily || ''} onChange={(e) => handleChange('family', 'aboutFamily', e.target.value)}></textarea>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Father" value={`${user.family?.fatherName || ''} ${user.family?.fatherOccupation ? `(${user.family.fatherOccupation})` : ''}`} />
-                                <DisplayRow label="Mother" value={`${user.family?.motherName || ''} ${user.family?.motherOccupation ? `(${user.family.motherOccupation})` : ''}`} />
-                                <DisplayRow label="Siblings" value={user.family?.siblings} />
-                                <DisplayRow label="Status" value={user.family?.familyStatus} />
-                                <DisplayRow label="Type" value={user.family?.familyType} />
-                                <DisplayRow label="About Family" value={user.family?.aboutFamily} />
-                            </div>
-                        )}
-                    </Card>
-
-                    {/* Astrological Details */}
-                    <Card className="p-6">
-                        <SectionHeader title="Astrological Details" sectionName="astrological" />
-                        {editingSection === 'astrological' ? (
-                            <div className="grid grid-cols-1 gap-4">
-                                <Select
-                                    label="Rassi"
-                                    options={RASI_OPTIONS}
-                                    value={formData.astrological?.rassi || ''}
-                                    onChange={(e) => handleChange('astrological', 'rassi', e.target.value)}
-                                />
-                                <Select
-                                    label="Natchathiram"
-                                    options={NATCHATHIRAM_OPTIONS}
-                                    value={formData.astrological?.natchathiram || ''}
-                                    onChange={(e) => handleChange('astrological', 'natchathiram', e.target.value)}
-                                />
-                                <Select
-                                    label="Dosham"
-                                    options={DOSHAM_OPTIONS}
-                                    value={formData.astrological?.dosham || ''}
-                                    onChange={(e) => handleChange('astrological', 'dosham', e.target.value)}
-                                />
-                                <FileUpload
-                                    label="Upload Jathagam (Photo/PDF)"
-                                    onUpload={(url) => handleChange('astrological', 'jathagamUrl', url)}
-                                    className="mt-2"
-                                />
-                                {formData.astrological?.jathagamUrl && (
-                                    <p className="text-xs text-green-600 flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Jathagam ready to save!
-                                    </p>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="space-y-1">
-                                <DisplayRow label="Rassi" value={user.astrological?.rassi} />
-                                <DisplayRow label="Natchathiram" value={user.astrological?.natchathiram} />
-                                <DisplayRow label="Dosham" value={user.astrological?.dosham} />
-                                <DisplayRow label="Jathagam" value={user.astrological?.jathagamUrl ? (
-                                    <a href={user.astrological.jathagamUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold">
-                                        View Jathagam
-                                    </a>
-                                ) : 'Not Uploaded'} />
-                            </div>
-                        )}
-                    </Card>
-
-                </div>
-
-                <div className="flex justify-center pt-8">
-                    <Button variant="secondary" onClick={() => navigate('/onboarding')}>
-                        Retake Compatibility Quiz
-                    </Button>
+                            {editingSection === 'astrological' && renderFormSection('Astrological Details', 'astrological', [
+                                { name: 'rassi', label: 'Rassi' },
+                                { name: 'nutchathiram', label: 'Natchathiram' },
+                                { name: 'dosham', label: 'Dosham', type: 'select', options: [{value:'No', label:'No'}, {value:'Yes', label:'Yes'}] }
+                            ])}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

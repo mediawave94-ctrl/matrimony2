@@ -16,8 +16,7 @@ const Dashboard = () => {
 
     // Filters
     const [filters, setFilters] = useState({
-        minAge: '', maxAge: '', religion: '', caste: '', city: '', occupation: '',
-        rassi: '', natchathiram: '', dosham: ''
+        ageRange: '', religion: '', city: '', occupation: '', caste: ''
     });
 
     // Connection State
@@ -26,15 +25,34 @@ const Dashboard = () => {
 
     const navigate = useNavigate();
 
+    // -- Options --
+    const AGE_OPTIONS = [
+        { value: '18-25', label: '18 - 25' },
+        { value: '26-30', label: '26 - 30' },
+        { value: '31-35', label: '31 - 35' },
+        { value: '36-40', label: '36 - 40' },
+        { value: '41-50', label: '41 - 50' },
+        { value: '50+', label: '50+' }
+    ];
+
+    const RELIGION_OPTIONS = ['Hindu', 'Christian', 'Muslim', 'Sikh', 'Jain'];
+    const PROFESSION_OPTIONS = ['Private', 'Government', 'Business', 'Self Employed'];
+    const LOCATION_OPTIONS = ['Chennai', 'Coimbatore', 'Madurai', 'Trichy', 'Salem', 'Tirunelveli', 'Vellore', 'Erode', 'Thoothukudi', 'Thanjavur'];
+
     const fetchAllProfiles = async (customFilters = filters) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        // Build query string
-        const queryParams = new URLSearchParams(customFilters);
-        // Remove empty keys
-        for (const [key, value] of queryParams.entries()) {
-            if (!value) queryParams.delete(key);
+        const queryParams = new URLSearchParams();
+        if (customFilters.religion) queryParams.append('religion', customFilters.religion);
+        if (customFilters.city) queryParams.append('city', customFilters.city);
+        if (customFilters.occupation) queryParams.append('occupation', customFilters.occupation);
+        
+        // Handle age range
+        if (customFilters.ageRange) {
+            const [min, max] = customFilters.ageRange.replace('+', '-100').split('-');
+            queryParams.append('minAge', min);
+            queryParams.append('maxAge', max);
         }
 
         try {
@@ -47,88 +65,61 @@ const Dashboard = () => {
                 setAllProfiles(data);
             }
         } catch (err) {
-            console.error('Error fetching all profiles:', err);
+            console.error('Error fetching profiles:', err);
         }
     };
 
+    const fetchMatches = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) { navigate('/'); return; }
+        try {
+            const response = await fetch('/api/matches', { headers: { 'x-auth-token': token } });
+            if (response.ok) {
+                const data = await response.json();
+                setMatches(data);
+            } else {
+                const errorData = await response.json();
+                if (errorData.code === 'QUIZ_REQUIRED') setNeedsQuiz(true);
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    const fetchUnreadCount = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await fetch('/api/chat/unread-total', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                setUnreadMessages(data.count);
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    const fetchCurrentUser = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await fetch('/api/users/profile', { headers: { 'x-auth-token': token } });
+            if (res.ok) {
+                const data = await res.json();
+                setCurrentUser(data);
+            }
+        } catch (err) { console.error(err); }
+    };
+
     useEffect(() => {
-        const fetchMatches = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                navigate('/');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/matches', {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setMatches(data);
-                } else {
-                    const errorData = await response.json();
-                    if (response.status === 401) {
-                        localStorage.removeItem('token');
-                        navigate('/');
-                    } else if (errorData.code === 'QUIZ_REQUIRED') {
-                        setNeedsQuiz(true);
-                    } else {
-                        setError('Failed to load matches');
-                    }
-                }
-            } catch (err) {
-                console.error(err);
-                setError('Connection error');
-            }
-        };
-
-        const fetchUnreadCount = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            try {
-                const res = await fetch('/api/chat/unread-total', {
-                    headers: { 'x-auth-token': token }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setUnreadMessages(data.count);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        };
-
-        const fetchCurrentUser = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            try {
-                const res = await fetch('/api/users/profile', {
-                    headers: { 'x-auth-token': token }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setCurrentUser(data);
-                }
-            } catch (err) {
-                console.error('Error fetching current user:', err);
-            }
-        };
-
         Promise.all([fetchMatches(), fetchAllProfiles(), fetchUnreadCount(), fetchCurrentUser()]).finally(() => {
             setLoading(false);
         });
-
         const interval = setInterval(fetchUnreadCount, 5000);
         return () => clearInterval(interval);
     }, [navigate]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/');
+    const handleFilterChange = (e) => {
+        const newFilters = { ...filters, [e.target.name]: e.target.value };
+        setFilters(newFilters);
+        fetchAllProfiles(newFilters);
     };
 
     const handleConnectClick = (user) => {
@@ -141,72 +132,20 @@ const Dashboard = () => {
             const token = localStorage.getItem('token');
             const res = await fetch('/api/connections/request', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-auth-token': token
-                },
+                headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
                 body: JSON.stringify({ recipientId: targetUser._id, introMessage: message })
             });
 
             if (res.ok) {
-                // Update local state to show 'Pending'
+                toast.success('Interest sent successfully!');
                 setMatches(prev => prev.map(m => m._id === targetUser._id ? { ...m, connectionStatus: 'pending' } : m));
                 setAllProfiles(prev => prev.map(p => p._id === targetUser._id ? { ...p, connectionStatus: 'pending' } : p));
                 setIsConnectModalOpen(false);
-                setTargetUser(null);
-                setIsConnectModalOpen(false);
-                setTargetUser(null);
             } else {
                 const data = await res.json();
-                if (res.status === 403 && data.code === 'PREMIUM_REQUIRED') {
-                    toast.custom((t) => (
-                        <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white shadow-2xl rounded-2xl border border-gray-100 pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
-                            <div className="flex-1 w-0 p-5">
-                                <div className="flex items-start">
-                                    <div className="flex-shrink-0 pt-0.5">
-                                        <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-500">
-                                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div className="ml-4 flex-1">
-                                        <p className="text-sm font-bold text-gray-900">
-                                            Premium Required
-                                        </p>
-                                        <p className="mt-1 text-sm text-gray-500 font-medium">
-                                            You need to be a Premium Member to connect. Upgrade now?
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="mt-4 flex gap-3">
-                                    <button
-                                        onClick={() => {
-                                            toast.dismiss(t.id);
-                                            navigate('/pricing');
-                                        }}
-                                        className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-secondary hover:bg-secondary-hover focus:outline-none"
-                                    >
-                                        Upgrade
-                                    </button>
-                                    <button
-                                        onClick={() => toast.dismiss(t.id)}
-                                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ), { duration: 5000, position: 'top-center' });
-                    setIsConnectModalOpen(false);
-                } else {
-                    toast.error(data.msg || 'Failed to send request');
-                }
+                toast.error(data.msg || 'Failed to send request');
             }
-        } catch (err) {
-            console.error(err);
-        }
+        } catch (err) { console.error(err); }
     };
 
     const getScoreColor = (score) => {
@@ -215,344 +154,257 @@ const Dashboard = () => {
         return 'text-rose-600';
     };
 
-    const getAstroScoreColor = (score) => {
-        if (score >= 8) return 'text-green-600';
-        if (score >= 5) return 'text-amber-600';
-        return 'text-rose-600';
-    };
-
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F46F4C]"></div>
         </div>
     );
 
-    // ... existing state ...
-
-    const handleFilterChange = (e) => {
-        setFilters({ ...filters, [e.target.name]: e.target.value });
-    };
-
-
-    // Trigger fetch on filter change (debounce could be added, but manual Apply button better?)
-    // Let's do a simple "Apply Filters" button or auto-fetch
-    const applyFilters = () => {
-        fetchAllProfiles();
-    };
-
-
-    // Helper to render connection button based on status and direction
-    // Wait, match object doesn't have direction info (requester vs recipient) easily unless back-end provides it.
-    // The previously updated backend controller puts 'connectionStatus' string. 
-    // To distinguish "Request Sent" vs "Received", we need to know who sent it.
-    // For now, let's assume 'pending' means "Request Sent" generally unless we check further. 
-    // The user explicitly asked for "Request Received". 
-    // I need to update the backend matchController to return WHO sent the request if pending.
-    // Or I can just check if I am the requester? 
-    // The current matchController structure:
-    // connectionMap[otherId] = conn.status;
-    // It doesn't store who initiated. I should update backend matchController first if I want to be precise.
-    // BUT time is tight. Let's assume for matches "Request Sent" is fine (we mostly see people we might want to connect to).
-    // For "Request Received", typically that appears in notifications.
-    // If a user sees a profile in "All Profiles" that SENT them a request, it should say "Accept/Reject" or "Request Received".
-    // I'll stick to generic "Pending" for now or update if simple.
-    // The user request: "if requent sent it show request sent in reciver side it should show as request received"
-    // I will add a "Message" icon for accepted.
-
-    // ...
-
-    // ...
-
-    const calculateCompleteness = (userProfile) => {
-        if (!userProfile) return 0;
-        let weight = 0;
-        let max = 5;
-        if (userProfile.basicDetails?.photoUrl && userProfile.basicDetails?.dob) weight++;
-        if (userProfile.religious?.religion && userProfile.religious?.caste) weight++;
-        if (userProfile.professional?.occupation) weight++;
-        if (userProfile.location?.city) weight++;
-        if (userProfile.family?.fatherName) weight++;
-        return Math.round((weight / max) * 100);
+    const calculateCompleteness = (u) => {
+        if (!u) return 0;
+        let w = 0; let m = 5;
+        if (u.basicDetails?.photoUrl) w++;
+        if (u.religious?.religion) w++;
+        if (u.professional?.occupation) w++;
+        if (u.location?.city) w++;
+        if (u.family?.fatherName) w++;
+        return Math.round((w / m) * 100);
     };
 
     const profilePercent = calculateCompleteness(currentUser);
 
-    return (
-        <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-            <div className="max-w-6xl mx-auto">
-                <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Your Weekly Matches</h1>
-                        <p className="text-sm text-gray-500 mt-1">Curated based on your Compatibility DNA</p>
-                    </div>
-                    <div className="flex flex-col sm:items-end w-full sm:w-auto gap-2">
-                        <div className="flex w-full sm:w-auto gap-3">
-                            <Button onClick={() => navigate('/messages')} variant="secondary" className="flex-1 sm:flex-none flex items-center justify-center gap-2 py-2.5 relative">
-                                <span>💬</span> Messages
-                                {unreadMessages > 0 && (
-                                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
-                                        {unreadMessages}
-                                    </span>
-                                )}
-                            </Button>
-                            <Button onClick={() => navigate('/profile')} className="flex-1 sm:flex-none py-2.5">
-                                My Profile
-                            </Button>
-                        </div>
-                        {/* Profile Completeness Scale */}
-                        {currentUser && (
-                            <div className="w-full mt-2 cursor-pointer group" onClick={() => navigate('/profile')}>
-                                <div className="flex justify-between items-center text-xs mb-1">
-                                    <span className="font-bold text-gray-600 group-hover:text-primary transition-colors">Profile Completeness</span>
-                                    <span className={`font-black ${profilePercent === 100 ? 'text-green-600' : 'text-primary'}`}>{profilePercent}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                                    <div 
-                                        className={`h-1.5 rounded-full transition-all duration-1000 ${profilePercent === 100 ? 'bg-green-500' : 'bg-primary'}`} 
-                                        style={{ width: `${profilePercent}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </header>
-
-                {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
-
-                {needsQuiz ? (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <h3 className="text-xl font-medium text-gray-600 mb-2">Personality Quiz Required</h3>
-                        <p className="text-gray-400 mb-6">You need to complete the personality quiz to discover your matches.</p>
-                        <Button onClick={() => navigate('/onboarding')}>Take Quiz Now</Button>
-                    </div>
-                ) : matches.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <h3 className="text-xl font-medium text-gray-600 mb-2">No matches found yet</h3>
-                        <p className="text-gray-400">We are looking for users with opposite gender compatibility.</p>
-                        <p className="text-gray-400 text-sm mt-2">Check back later as more users join!</p>
-                    </div>
+    const ProfileCard = ({ p, isMatch = false }) => (
+        <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group p-4">
+            <div className="aspect-[4/3] rounded-2xl relative overflow-hidden mb-4">
+                {p.basicDetails?.photoUrl ? (
+                    <img 
+                        src={p.basicDetails.photoUrl} 
+                        alt={p.name} 
+                        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${p.connectionStatus !== 'accepted' ? 'blur-md brightness-90' : ''}`}
+                    />
                 ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {matches.map((match) => (
-                            <Card key={match._id} title={match.name} badge={
-                                match.subscriptionStatus === 'premium' ?
-                                    <span className="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-300">SILVER</span> :
-                                    match.subscriptionStatus === 'elite' ?
-                                        <span className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-300">GOLD</span> :
-                                        null
-                            }>
-                                <div className="aspect-[4/3] bg-gray-100 rounded-2xl mb-4 relative overflow-hidden group">
-                                    {match.basicDetails?.photoUrl ? (
-                                        <img
-                                            src={match.basicDetails.photoUrl}
-                                            alt={match.name}
-                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${match.connectionStatus !== 'accepted' ? 'blur-md brightness-90' : ''}`}
-                                        />
-                                    ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                            <span className="text-4xl font-bold text-gray-300">{match.name[0]}</span>
-                                        </div>
-                                    )}
-
-                                    {match.connectionStatus !== 'accepted' && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
-                                            <div className="bg-white/90 px-3 py-1.5 rounded-full shadow-sm">
-                                                <span className="text-[10px] font-bold text-gray-700 flex items-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                                    </svg>
-                                                    Connect to view
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                        <div className={`bg-white/90 backdrop-blur px-2.5 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-accent`}>
-                                            <span className={`text-lg font-bold leading-none ${getScoreColor(match.compatibility.total)}`}>
-                                                {match.compatibility.total}%
-                                            </span>
-                                            <span className="text-[8px] text-gray-400 font-bold uppercase tracking-widest">Match</span>
-                                        </div>
-                                        {match.astroScore !== null && (
-                                            <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm flex flex-col items-center min-w-[50px] border border-amber-200`}>
-                                                <span className={`text-sm font-extrabold leading-none ${getAstroScoreColor(match.astroScore || 0)}`}>
-                                                    {(match.astroScore || 0)}/10
-                                                </span>
-                                                <span className="text-[7px] text-amber-600 font-bold uppercase tracking-widest">Astro</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
-                                        <span className="text-[10px] font-bold text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-md uppercase tracking-wide">
-                                            {match.gender} • {match.age || 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4">
-                                    {match.connectionStatus === 'none' && (
-                                        <Button className="w-full text-sm py-2" onClick={() => handleConnectClick(match)}>
-                                            Connect
-                                        </Button>
-                                    )}
-                                    {match.connectionStatus === 'pending' && (
-                                        <Button className="w-full text-sm py-2" variant="secondary" disabled>
-                                            Request Sent
-                                        </Button>
-                                    )}
-                                    {match.connectionStatus === 'accepted' && (
-                                        <div className="flex gap-2">
-                                            <Button className="flex-1 text-xs" variant="outline" onClick={() => navigate(`/profile/${match._id}`)}>
-                                                View
-                                            </Button>
-                                            <Button className="flex-1 text-xs bg-green-600 hover:bg-green-700 text-white relative" onClick={() => navigate(`/messages?user=${match._id}`)}>
-                                                Chat 💬
-                                                {match.unreadCount > 0 && (
-                                                    <span className="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-white animate-pulse"></span>
-                                                )}
-                                            </Button>
-                                        </div>
-                                    )}
-                                    {match.connectionStatus === 'rejected' && (
-                                        <Button className="w-full text-sm py-2" variant="secondary" disabled>
-                                            Rejected
-                                        </Button>
-                                    )}
-                                </div>
-                            </Card>
-                        ))}
+                    <div className="absolute inset-0 bg-gray-50 flex items-center justify-center text-3xl font-black text-gray-200">{p.name[0]}</div>
+                )}
+                
+                {p.connectionStatus !== 'accepted' && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
+                        <div className="bg-white/90 px-3 py-1.5 rounded-full shadow-lg border border-white/50">
+                            <span className="text-[10px] font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
+                                🔒 Request View
+                            </span>
+                        </div>
                     </div>
                 )}
-            </div>
 
-            <div className="max-w-6xl mx-auto">
-                {/* ... All Profiles & Filters ... */}
-                <div className="mt-12 flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">All Profiles</h1>
-                        <p className="text-sm text-gray-500 mt-1">Discover everyone on our platform</p>
-                    </div>
-
-                    {/* Filter Bar */}
-                    <div className="w-full flex flex-col gap-4 bg-white p-6 rounded-3xl border border-accent shadow-sm">
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                            <input name="minAge" type="number" placeholder="Min Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.minAge} onChange={handleFilterChange} />
-                            <input name="maxAge" type="number" placeholder="Max Age" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.maxAge} onChange={handleFilterChange} />
-                            <input name="city" placeholder="City" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.city} onChange={handleFilterChange} />
-                            <input name="religion" placeholder="Religion" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.religion} onChange={handleFilterChange} />
-                            <input name="caste" placeholder="Caste" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.caste} onChange={handleFilterChange} />
-                            <input name="rassi" placeholder="Rassi" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.rassi} onChange={handleFilterChange} />
-                            <input name="natchathiram" placeholder="Natchathiram" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.natchathiram} onChange={handleFilterChange} />
-                            <select name="dosham" className="p-2.5 text-sm bg-gray-50 rounded-xl border-gray-100 focus:ring-primary" value={filters.dosham} onChange={handleFilterChange}>
-                                <option value="">Dosham?</option>
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                                <option value="Unknown">Unknown</option>
-                            </select>
-                            <Button onClick={applyFilters} className="bg-primary hover:bg-primary-hover text-white font-bold rounded-xl shadow-lg shadow-primary/20 col-span-2 md:col-span-1">
-                                Apply Filters
-                            </Button>
-                        </div>
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                    <div className="bg-white/95 backdrop-blur px-2.5 py-1 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
+                        <span className={`text-sm font-black ${getScoreColor(p.compatibility?.total || 75)}`}>
+                            {p.compatibility?.total || 75}%
+                        </span>
+                        <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">DNA</span>
                     </div>
                 </div>
 
-                {allProfiles.length === 0 ? (
-                    <div className="text-center py-10 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <p className="text-gray-400">No profiles found matching criteria.</p>
-                    </div>
-                ) : (
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {allProfiles.map((profile) => (
-                            <Card
-                                key={profile._id}
-                                title={profile.name}
-                                badge={
-                                    profile.subscriptionStatus === 'premium' ?
-                                        <span className="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-300">SILVER</span> :
-                                        profile.subscriptionStatus === 'elite' ?
-                                            <span className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-yellow-300">GOLD</span> :
-                                            null
-                                }
-                            >
-                                {/* ... Card Content ... */}
-                                <div className="aspect-[4/3] bg-gray-100 rounded-2xl mb-4 relative overflow-hidden group">
-                                    {profile.basicDetails?.photoUrl ? (
-                                        <img
-                                            src={profile.basicDetails.photoUrl}
-                                            alt={profile.name}
-                                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${profile.connectionStatus !== 'accepted' ? 'blur-md brightness-90' : ''}`}
-                                        />
-                                    ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                            <span className="text-4xl font-bold text-gray-300">{profile.name[0]}</span>
-                                        </div>
-                                    )}
+                <div className="absolute bottom-3 left-3">
+                    <span className="text-[10px] font-black text-white bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg uppercase tracking-widest">
+                        {p.age || 'N/A'} Yrs • {p.gender}
+                    </span>
+                </div>
+            </div>
 
-                                    {profile.connectionStatus !== 'accepted' && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
-                                            <div className="bg-white/90 px-3 py-1.5 rounded-full shadow-sm">
-                                                <span className="text-[10px] font-bold text-gray-700 flex items-center gap-1">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                                    </svg>
-                                                    Connect to view
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
+            <div className="space-y-1">
+                <h3 className="text-lg font-black text-gray-900 leading-tight">{p.name}</h3>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.professional?.occupation || 'Profession'} • {p.location?.city || 'Location'}</p>
+            </div>
 
-                                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[90%] flex justify-between items-center pointer-events-none">
-                                        <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-accent flex flex-col items-center min-w-[45px]`}>
-                                            <span className={`text-xs font-bold leading-none ${getScoreColor(profile.compatibility?.total || 0)}`}>
-                                                {profile.compatibility?.total || 0}%
-                                            </span>
-                                            <span className="text-[6px] text-gray-400 font-bold uppercase tracking-widest">Match</span>
-                                        </div>
-                                        {profile.astroScore !== null && (
-                                            <div className={`bg-white/95 backdrop-blur px-2 py-1 rounded-lg shadow-sm border border-amber-200 flex flex-col items-center min-w-[45px]`}>
-                                                <span className={`text-xs font-extrabold leading-none ${getAstroScoreColor(profile.astroScore || 0)}`}>
-                                                    {(profile.astroScore || 0)}/10
-                                                </span>
-                                                <span className="text-[6px] text-amber-600 font-bold uppercase tracking-widest">Astro</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
-                                        <span className="text-[10px] font-bold text-white bg-black/40 backdrop-blur-md px-2 py-1 rounded-md uppercase tracking-wide">
-                                            {profile.gender} • {profile.age || 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* ... Details ... */}
-
-                                <div className="mt-6 space-y-2">
-                                    {profile.connectionStatus === 'none' && (
-                                        <Button className="w-full" onClick={() => handleConnectClick(profile)}>Connect</Button>
-                                    )}
-                                    {profile.connectionStatus === 'pending' && (
-                                        <Button className="w-full" variant="secondary" disabled>Request Sent</Button>
-                                    )}
-                                    {profile.connectionStatus === 'accepted' && (
-                                        <div className="flex gap-2">
-                                            <Button className="flex-1" variant="outline" onClick={() => navigate(`/profile/${profile._id}`)}>View</Button>
-                                            <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white relative" onClick={() => navigate(`/messages?user=${profile._id}`)}>
-                                                Chat 💬
-                                                {profile.unreadCount > 0 && (
-                                                    <span className="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-white animate-pulse"></span>
-                                                )}
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+            <div className="mt-5 flex gap-2">
+                <Button 
+                    className="flex-1 text-xs py-3 rounded-xl border-2 border-[#F46F4C]/10 text-[#F46F4C] hover:bg-[#F46F4C]/5 transition-colors font-bold" 
+                    variant="ghost" 
+                    onClick={() => navigate(`/profile/${p._id}`)}
+                >
+                    Profile
+                </Button>
+                
+                {p.connectionStatus === 'none' && (
+                    <Button 
+                        className="flex-[2] text-xs py-3 rounded-xl bg-[#F46F4C] hover:bg-[#e05e3b] shadow-lg shadow-orange-50 font-bold" 
+                        onClick={() => handleConnectClick(p)}
+                    >
+                        Send Interest
+                    </Button>
+                )}
+                {p.connectionStatus === 'pending' && (
+                    <Button 
+                        className="flex-[2] text-xs py-3 rounded-xl bg-gray-100 text-gray-400 font-bold" 
+                        disabled
+                    >
+                        Interest Sent
+                    </Button>
+                )}
+                {p.connectionStatus === 'accepted' && (
+                    <Button 
+                        className="flex-[1.5] text-xs py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold" 
+                        onClick={() => navigate(`/messages?user=${p._id}`)}
+                    >
+                        Chat 💬
+                    </Button>
                 )}
             </div>
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-[#FDFCFB] flex">
+            {/* ================= MAIN CONTENT ================= */}
+            <div className="flex-1 p-8 md:p-12 overflow-y-auto">
+                <div className="max-w-5xl mx-auto space-y-12">
+                    
+                    <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-gray-100 pb-8">
+                        <div>
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tight">Match Center</h1>
+                            <p className="text-gray-400 font-bold mt-1 tracking-wide uppercase text-[10px] tracking-[0.2em]">Curated souls based on your soul profile</p>
+                        </div>
+                        
+                        <div className="flex items-center gap-6">
+                            <div className="text-right hidden sm:block">
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5">{profilePercent}% Complete</p>
+                                <div className="w-28 bg-gray-100 h-1 rounded-full overflow-hidden">
+                                    <div className="bg-[#F46F4C] h-full transition-all duration-1000" style={{ width: `${profilePercent}%` }}></div>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => navigate('/profile')} 
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white border border-[#F46F4C]/10 shadow-sm hover:shadow-md hover:bg-[#FFF5F0] transition-all group"
+                            >
+                                <div className="w-8 h-8 rounded-xl bg-[#F46F4C]/10 flex items-center justify-center text-[#F46F4C] font-black text-sm group-hover:bg-[#F46F4C] group-hover:text-white transition-colors">
+                                    {currentUser?.name?.charAt(0) || 'U'}
+                                </div>
+                                <span className="text-xs font-black text-gray-700 uppercase tracking-widest hidden lg:block">My Profile</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Weekly Matches */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                                <span className="w-8 h-[2px] bg-[#F46F4C]"></span>
+                                Exclusive Matches For Interest
+                            </h2>
+                        </div>
+                        {matches.length === 0 ? (
+                            <div className="bg-white p-12 rounded-[3rem] border border-gray-100 text-center space-y-4">
+                                <p className="text-gray-400 font-bold">Discovering new compatible souls...</p>
+                                <Button onClick={() => navigate('/onboarding')} className="text-xs px-8">Refresh DNA Quiz</Button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {matches.slice(0, 3).map(m => <ProfileCard key={m._id} p={m} isMatch />)}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* All Profiles */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                                <span className="w-8 h-[2px] bg-[#F46F4C]"></span>
+                                All Profiles
+                            </h2>
+                            <p className="text-xs font-bold text-gray-400">{allProfiles.length} Members Found</p>
+                        </div>
+                        {allProfiles.length === 0 ? (
+                            <div className="text-center py-20">
+                                <p className="text-gray-400 font-bold">No souls match your current filters.</p>
+                                <button onClick={() => { setFilters({ ageRange:'', religion:'', city:'', occupation:'', caste:'' }); fetchAllProfiles({ ageRange:'', religion:'', city:'', occupation:'', caste:'' }); }} className="text-[#F46F4C] font-black text-xs uppercase tracking-widest mt-4">Reset All Filters</button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {allProfiles.map(p => <ProfileCard key={p._id} p={p} />)}
+                            </div>
+                        )}
+                    </div>
+
+                </div>
+            </div>
+
+            {/* ================= RIGHT FILTERS SIDEBAR ================= */}
+            <aside className="w-80 bg-white border-l border-gray-100 flex flex-col sticky top-20 h-[calc(100vh-80px)] shrink-0 p-8 hidden xl:flex">
+                <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-lg font-black text-gray-900 uppercase tracking-widest">Filters</h3>
+                    <button 
+                        onClick={() => { setFilters({ ageRange:'', religion:'', city:'', occupation:'', caste:'' }); fetchAllProfiles({ ageRange:'', religion:'', city:'', occupation:'', caste:'' }); }}
+                        className="text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+                    >
+                        Clear
+                    </button>
+                </div>
+
+                <div className="space-y-8">
+                    {/* Age Filter */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Age Range</label>
+                        <select 
+                            name="ageRange"
+                            value={filters.ageRange}
+                            onChange={handleFilterChange}
+                            className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 font-bold text-gray-800 text-sm focus:ring-2 focus:ring-[#F46F4C] appearance-none cursor-pointer"
+                        >
+                            <option value="">All Ages</option>
+                            {AGE_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Religion Filter */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Religion</label>
+                        <select 
+                            name="religion"
+                            value={filters.religion}
+                            onChange={handleFilterChange}
+                            className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 font-bold text-gray-800 text-sm focus:ring-2 focus:ring-[#F46F4C] appearance-none cursor-pointer"
+                        >
+                            <option value="">All Religions</option>
+                            {RELIGION_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Professional Filter */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Professional</label>
+                        <select 
+                            name="occupation"
+                            value={filters.occupation}
+                            onChange={handleFilterChange}
+                            className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 font-bold text-gray-800 text-sm focus:ring-2 focus:ring-[#F46F4C] appearance-none cursor-pointer"
+                        >
+                            <option value="">All Careers</option>
+                            {PROFESSION_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+
+                    {/* Location Filter */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Location</label>
+                        <select 
+                            name="city"
+                            value={filters.city}
+                            onChange={handleFilterChange}
+                            className="w-full bg-gray-50 border-0 rounded-2xl px-5 py-4 font-bold text-gray-800 text-sm focus:ring-2 focus:ring-[#F46F4C] appearance-none cursor-pointer"
+                        >
+                            <option value="">All Regions</option>
+                            {LOCATION_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="mt-auto p-6 bg-[#FFF5F0] rounded-3xl border border-orange-50 space-y-2">
+                    <p className="text-[10px] font-black text-[#F46F4C] uppercase tracking-[0.2em]">Premium Filter</p>
+                    <p className="text-[11px] font-bold text-gray-600 leading-relaxed">Upgrade to see members matching your DNA perfectly.</p>
+                    <Button onClick={() => navigate('/pricing')} className="w-full text-[10px] py-3 mt-2 bg-white text-[#F46F4C] border border-[#F46F4C]/20 shadow-none hover:bg-white hover:shadow-lg">Learn More</Button>
+                </div>
+            </aside>
 
             <ConnectModal
                 isOpen={isConnectModalOpen}
@@ -563,4 +415,5 @@ const Dashboard = () => {
         </div>
     );
 };
+
 export default Dashboard;
