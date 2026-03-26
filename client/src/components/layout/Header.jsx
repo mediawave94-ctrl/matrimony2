@@ -116,12 +116,13 @@ const Header = () => {
                 <div className="flex justify-between items-center h-20">
                     <div className="flex-shrink-0">
                         <Link to="/" className="flex items-center gap-3 group">
-                            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary shadow-lg group-hover:shadow-primary/30 transition-all duration-300 transform group-hover:-rotate-3">
+                            {/* <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-secondary shadow-lg group-hover:shadow-primary/30 transition-all duration-300 transform group-hover:-rotate-3">
                                 <span className="text-2xl">💍</span>
+                            </div> */}
+                            <div className="flex items-center gap-2">
+                                {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SM</div> */}
+                                <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
                             </div>
-                            <span className="text-2xl font-serif font-bold text-gray-900 tracking-tight">
-                                Shisya <span className="text-secondary">Matrimony</span>
-                            </span>
                         </Link>
                     </div>
 

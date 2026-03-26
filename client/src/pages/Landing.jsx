@@ -7,6 +7,16 @@ import HeroIllustration from '../assets/hero_illustration.png';
 
 const Landing = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  const handleLoginClick = (e) => {
+    e.preventDefault();
+    setIsLogin(true);
+    document.getElementById('hero-form')?.scrollIntoView({ behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
+    setIsHelpOpen(false);
+  };
 
   return (
     <div className="min-h-screen w-full bg-white font-sans selection:bg-brand-maroon/20">
@@ -15,28 +25,73 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SM</div> */}
-            <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+            <span className="text-4xl font-black tracking-tighter text-gray-900 font-serif">Shishya <span className="text-brand-maroon">Matrimony</span></span>
           </div>
 
           <div className="flex items-center gap-6">
             <div className="hidden md:flex items-center gap-2 text-sm text-gray-600 font-medium">
               <span>Already a member?</span>
-              <Link to="/login">
-                <Button variant="outline" className="text-brand-maroon border-brand-maroon hover:bg-red-50 px-6 py-2 rounded-lg ml-2">
-                  LOGIN
-                </Button>
-              </Link>
+              <Button 
+                onClick={handleLoginClick}
+                variant="outline" 
+                className="text-brand-maroon border-brand-maroon hover:bg-red-50 px-6 py-2 rounded-lg ml-2"
+              >
+                LOGIN
+              </Button>
             </div>
-            <div className="hidden md:flex items-center gap-1 cursor-pointer group">
-              <span className="text-gray-600 font-medium group-hover:text-brand-maroon transition-colors">Help</span>
-              <svg className="w-4 h-4 text-gray-400 group-hover:text-brand-maroon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
+            
+            {/* Help Dropdown */}
+            <div className="relative hidden md:block">
+              <div 
+                onClick={() => setIsHelpOpen(!isHelpOpen)}
+                className="flex items-center gap-1 cursor-pointer group"
+              >
+                <span className={`font-medium transition-colors ${isHelpOpen ? 'text-brand-maroon' : 'text-gray-600 group-hover:text-brand-maroon'}`}>Help</span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${isHelpOpen ? 'text-brand-maroon rotate-180' : 'text-gray-400 group-hover:text-brand-maroon'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {isHelpOpen && (
+                <div className="absolute top-full right-0 mt-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4 group/item cursor-pointer">
+                      <div className="w-10 h-10 rounded-xl bg-brand-maroon/10 flex items-center justify-center text-brand-maroon group-hover/item:rotate-12 transition-transform">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Call Us</p>
+                        <p className="text-sm font-bold text-gray-900">+91 98765 43210</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 group/item cursor-pointer">
+                      <div className="w-10 h-10 rounded-xl bg-brand-maroon/10 flex items-center justify-center text-brand-maroon group-hover/item:rotate-12 transition-transform">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Support</p>
+                        <p className="text-sm font-bold text-gray-900">help@shishyamatrimony.com</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-gray-900 focus:outline-none p-2 bg-brand-light-gold rounded-lg">
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                  setIsHelpOpen(false);
+                }} 
+                className="text-gray-900 focus:outline-none p-2 bg-brand-light-gold rounded-lg"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {isMobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -51,22 +106,43 @@ const Landing = () => {
 
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-6 shadow-xl absolute w-full top-20 left-0 flex flex-col gap-4">
+          <div className="md:hidden bg-white border-t border-gray-100 px-6 py-6 shadow-xl absolute w-full top-20 left-0 flex flex-col gap-4 animate-in slide-in-from-top duration-300">
             <span className="text-sm text-gray-600 font-medium text-center">Already a member?</span>
-            <Link to="/login" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button variant="outline" className="w-full text-brand-maroon border-brand-maroon hover:bg-red-50 px-6 py-3 rounded-xl">
-                LOGIN TO ACCOUNT
-              </Button>
-            </Link>
-            <div className="flex items-center justify-center gap-1 cursor-pointer group mt-2 pt-4 border-t border-gray-100">
-              <span className="text-gray-600 font-medium group-hover:text-brand-maroon transition-colors text-center">Need Help?</span>
+            <Button 
+              onClick={handleLoginClick}
+              variant="outline" 
+              className="w-full text-brand-maroon border-brand-maroon hover:bg-red-50 px-6 py-3 rounded-xl"
+            >
+              LOGIN TO ACCOUNT
+            </Button>
+            
+            <div className="pt-4 border-t border-gray-100 space-y-4">
+              <p className="text-center text-xs font-bold text-gray-400 uppercase tracking-widest">Customer Support</p>
+              <div className="flex flex-col gap-3">
+                <a href="tel:+919876543210" className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-brand-maroon shadow-sm">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <span className="font-bold text-gray-900">+91 98765 43210</span>
+                </a>
+                <a href="mailto:help@shishyamatrimony.com" className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-brand-maroon shadow-sm">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span className="font-bold text-gray-900">help@shishyamatrimony.com</span>
+                </a>
+              </div>
             </div>
           </div>
         )}
       </nav>
 
       {/* ================= HERO SECTION ================= */}
-      <section className="pt-32 pb-20 bg-brand-light-gold relative overflow-hidden">
+      <section className="pt-10 pb-20 bg-brand-light-gold relative overflow-hidden">
         {/* Decorative background circle */}
         <div className="absolute top-20 -left-20 w-[600px] h-[600px] bg-brand-maroon/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -74,13 +150,13 @@ const Landing = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-20 items-center">
 
             {/* LEFT CONTENT */}
-            <div className="mb-12 lg:mb-0 text-center lg:text-left">
+            <div className="mb-1 lg:mb-0 text-center lg:text-left">
               <h1 className="text-2xl md:text-3xl xl:text-4xl font-black text-gray-900 leading-[1.1] mb-8">
                 The <span className="text-brand-gold">Biggest</span> and most <span className="text-brand-gold">Trusted</span> matrimony service for you.
               </h1>
 
-              <div className="relative w-full max-w-lg aspect-square mb-6 group mx-auto lg:mx-0">
-                <div className="absolute inset-0 bg-brand-maroon/10 rounded-3xl -rotate-3 transition-transform group-hover:rotate-0 duration-500" />
+              <div className="relative  hidden md:block w-full max-w-lg aspect-square mb-6 group mx-auto lg:mx-0">
+                <div className="absolute  inset-0 bg-brand-maroon/10 rounded-3xl -rotate-3 transition-transform group-hover:rotate-0 duration-500" />
                 <img
                   src={HeroIllustration}
                   alt="Celebrating Matchmaking"
@@ -96,8 +172,8 @@ const Landing = () => {
             </div>
 
             {/* RIGHT FORM */}
-            <div className="flex justify-center lg:justify-end">
-              <RegistrationHeroForm />
+            <div className="flex justify-center lg:justify-end" id="hero-form">
+              <RegistrationHeroForm isLogin={isLogin} setIsLogin={setIsLogin} />
             </div>
 
           </div>
