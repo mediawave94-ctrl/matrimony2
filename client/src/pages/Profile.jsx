@@ -379,7 +379,7 @@ const Profile = () => {
                             />
                         </div>
                     </div>
-                    <h2 className="text-xl font-black text-gray-900 leading-tight mb-0.5">{user.name}</h2>
+                    <h2 className="text-xl font-black text-gray-900 leading-tight mb-0.5 capitalize">{user.name}</h2>
                     <p className="text-[9px] font-black text-[#F46F4C] uppercase tracking-[0.2em]">ID: {user._id?.slice(-6).toUpperCase()}</p>
                 </div>
 

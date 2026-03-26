@@ -213,7 +213,7 @@ const Dashboard = () => {
             </div>
 
             <div className="space-y-1">
-                <h3 className="text-lg font-black text-gray-900 leading-tight">{p.name}</h3>
+                <h3 className="text-lg font-black text-gray-900 leading-tight capitalize">{p.name}</h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.professional?.occupation || 'Profession'} • {p.location?.city || 'Location'}</p>
             </div>
 
@@ -277,10 +277,10 @@ const Dashboard = () => {
                                 onClick={() => navigate('/profile')} 
                                 className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white border border-[#F46F4C]/10 shadow-sm hover:shadow-md hover:bg-[#FFF5F0] transition-all group"
                             >
-                                <div className="w-8 h-8 rounded-xl bg-[#F46F4C]/10 flex items-center justify-center text-[#F46F4C] font-black text-sm group-hover:bg-[#F46F4C] group-hover:text-white transition-colors">
+                                <div className="w-8 h-8 rounded-xl bg-[#F46F4C]/10 flex items-center justify-center text-[#F46F4C] font-black text-sm group-hover:bg-[#F46F4C] group-hover:text-white transition-colors capitalize">
                                     {currentUser?.name?.charAt(0) || 'U'}
                                 </div>
-                                <span className="text-xs font-black text-gray-700 uppercase tracking-widest hidden lg:block">My Profile</span>
+                                <span className="text-xs font-black text-gray-700 uppercase tracking-widest hidden lg:block capitalize">My Profile</span>
                             </button>
                         </div>
                     </header>
