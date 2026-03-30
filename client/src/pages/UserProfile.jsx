@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import ConnectModal from '../components/ConnectModal';
+import { toast } from 'react-hot-toast';
 
 const UserProfile = () => {
     const { id } = useParams();
@@ -12,6 +13,7 @@ const UserProfile = () => {
     const [error, setError] = useState('');
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState('none'); // none, pending, accepted, rejected
+    const [lightbox, setLightbox] = useState({ isOpen: false, currentPhoto: '' });
 
     useEffect(() => {
         fetchUserProfile();
@@ -53,6 +55,24 @@ const UserProfile = () => {
         }
     };
 
+    const handleShortlist = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/users/shortlist/${id}`, {
+                method: 'POST',
+                headers: { 'x-auth-token': token }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast.success('Added to Shortlist!', { icon: '📌' });
+            } else {
+                toast.error(data.msg || 'Already shortlisted');
+            }
+        } catch (err) {
+            toast.error('Failed to shortlist');
+        }
+    };
+
     const handleConnect = async (message) => {
         const token = localStorage.getItem('token');
         try {
@@ -68,7 +88,10 @@ const UserProfile = () => {
             if (res.ok) {
                 setConnectionStatus('pending');
                 setIsConnectModalOpen(false);
-                // Optionally refresh profile to see if anything changed (unlikely until accept)
+                toast.success('Interest sent successfully!', { icon: '💞' });
+            } else {
+                const data = await res.json();
+                toast.error(data.msg || 'Failed to send interest');
             }
         } catch (err) {
             console.error(err);
@@ -148,6 +171,13 @@ const UserProfile = () => {
                                         Send Interest
                                     </Button>
                                 )}
+                                <Button 
+                                    onClick={handleShortlist} 
+                                    variant="outline" 
+                                    className="border-gray-200 text-gray-600 hover:bg-gray-50 px-6 py-3 rounded-xl font-bold flex items-center gap-2"
+                                >
+                                    <span>⭐</span> Shortlist
+                                </Button>
                                 {connectionStatus === 'pending' && (
                                     <Button disabled className="bg-amber-100 text-amber-700 border border-amber-200 px-8 py-3 rounded-xl font-bold">
                                         Waiting for Acceptance
@@ -228,6 +258,25 @@ const UserProfile = () => {
                     </Card>
                 )}
 
+                {/* Photo Gallery */}
+                {user.photos?.length > 0 && (
+                    <Card className="p-6 border border-gray-100 shadow-sm">
+                        <h3 className="text-xl font-black text-gray-900 tracking-tight mb-6">Photo Gallery</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                            {user.photos.map((photo, idx) => (
+                                <div key={idx} className="aspect-[3/4] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-gray-50 border border-gray-100">
+                                    <img 
+                                        src={photo} 
+                                        alt={`Gallery ${idx + 1}`} 
+                                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                                        onClick={() => setLightbox({ isOpen: true, currentPhoto: photo })}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
 
                     {/* Basic Details */}
@@ -299,6 +348,26 @@ const UserProfile = () => {
                 onSend={handleConnect}
                 candidateName={user.name}
             />
+
+            {/* Lightbox Modal */}
+            {lightbox.isOpen && (
+                <div 
+                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
+                    onClick={() => setLightbox({ isOpen: false, currentPhoto: '' })}
+                >
+                    <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <img 
+                        src={lightbox.currentPhoto} 
+                        alt="Enlarged" 
+                        className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl animate-scaleIn"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 };

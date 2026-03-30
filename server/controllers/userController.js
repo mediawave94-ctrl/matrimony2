@@ -36,6 +36,7 @@ exports.updateProfile = async (req, res) => {
         if (req.body.location) profileFields.location = req.body.location; // Overlap with old field, schema will handle
         if (req.body.family) profileFields.family = req.body.family;
         if (req.body.astrological) profileFields.astrological = req.body.astrological;
+        if (req.body.photos) profileFields.photos = req.body.photos;
 
         // If personality is updated, recalculate DNA
         if (personality) {
@@ -99,9 +100,15 @@ exports.getUserById = async (req, res) => {
             fs.appendFileSync('profile_debug.log', `Profile View Skipped: selfStar=${!!currentUser.astrological?.natchathiram} targetStar=${!!user.astrological?.natchathiram}\n`);
         }
 
+        // Increment profile view count if viewing someone else
+        if (currentUserId !== targetUserId) {
+            await User.findByIdAndUpdate(targetUserId, { $inc: { 'stats.views': 1 } });
+        }
+
         // Clone user object to modify it
         let userProfile = user.toObject();
         userProfile.astroMatch = astroMatch;
+        userProfile.stats = user.stats || { views: 0, interests: 0, shortlists: 0 };
 
         if (!isConnected) {
             // MASK SENSITIVE DATA
@@ -131,9 +138,6 @@ exports.subscribe = async (req, res) => {
     try {
         const { planId, amount } = req.body;
 
-        // In a real app, verify signature/payment ID here.
-        // For MVP, we assume trust (or self-serve simulation)
-
         const transaction = new Transaction({
             user: req.user.id,
             amount: amount,
@@ -151,6 +155,30 @@ exports.subscribe = async (req, res) => {
         });
 
         res.json({ msg: 'Subscription successful', transaction });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+const Shortlist = require('../models/Shortlist');
+
+exports.shortlist = async (req, res) => {
+    try {
+        const targetId = req.params.id;
+        const userId = req.user.id;
+
+        if (userId === targetId) return res.status(400).json({ msg: 'Cannot shortlist yourself' });
+
+        const existing = await Shortlist.findOne({ user: userId, target: targetId });
+        if (existing) return res.status(400).json({ msg: 'Already shortlisted' });
+
+        const shortlist = new Shortlist({ user: userId, target: targetId });
+        await shortlist.save();
+
+        await User.findByIdAndUpdate(targetId, { $inc: { 'stats.shortlists': 1 } });
+        res.json({ msg: 'Added to shortlist' });
 
     } catch (err) {
         console.error(err.message);

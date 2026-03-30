@@ -23,6 +23,13 @@ const UserSchema = new mongoose.Schema({
     // Extended Profile
     bio: { type: String }, // Profile description
 
+    // Gallery Photos (up to 6)
+    photos: [{ type: String }],
+
+    // Password Reset
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+
     // 1. Basic Details
     basicDetails: {
         photoUrl: { type: String },
@@ -99,6 +106,13 @@ const UserSchema = new mongoose.Schema({
         emotional: { type: Number, default: 0 },
         thinking: { type: Number, default: 0 },
         lifestyle: { type: Number, default: 0 }
+    },
+
+    // Stats counters
+    stats: {
+        views: { type: Number, default: 0 },
+        interests: { type: Number, default: 0 },
+        shortlists: { type: Number, default: 0 }
     },
 
     createdAt: { type: Date, default: Date.now }

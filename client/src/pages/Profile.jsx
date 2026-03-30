@@ -82,6 +82,7 @@ const Profile = () => {
                 name: data.name,
                 gender: data.gender,
                 bio: data.bio || '',
+                photos: data.photos || [],
                 basicDetails: data.basicDetails || { habits: {} },
                 religious: data.religious || {},
                 professional: data.professional || {},
@@ -94,6 +95,15 @@ const Profile = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const [lightbox, setLightbox] = useState({ isOpen: false, currentPhoto: '' });
+
+    const handlePhotoUpload = (index, url) => {
+        const newPhotos = [...(formData.photos || [])];
+        newPhotos[index] = url;
+        const updatedData = { ...formData, photos: newPhotos };
+        handleUpdate('photos', updatedData);
     };
 
     const handleUpdate = async (section, dataToUpdate = null) => {
@@ -110,7 +120,9 @@ const Profile = () => {
             const data = await res.json();
             setUser(data);
             setEditingSection(null);
-            if (dataToUpdate) {
+            if (section === 'photos') {
+                toast.success('Gallery updated!', { icon: '📸' });
+            } else if (dataToUpdate) {
                 setFormData(dataToUpdate);
                 toast.success('Photo updated successfully!', { icon: '📸' });
             } else {
@@ -188,9 +200,9 @@ const Profile = () => {
         <div className="space-y-8 animate-fadeIn">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                    { label: 'Profile Views', count: 0, color: 'blue', icon: '👁️' },
-                    { label: 'Interests', count: 0, color: 'rose', icon: '💞' },
-                    { label: 'Shortlists', count: 0, color: 'emerald', icon: '📌' },
+                    { label: 'Profile Views', count: user.stats?.views || 0, color: 'blue', icon: '👁️' },
+                    { label: 'Interests', count: user.stats?.interests || 0, color: 'rose', icon: '💞' },
+                    { label: 'Shortlists', count: user.stats?.shortlists || 0, color: 'emerald', icon: '📌' },
                 ].map((stat) => (
                     <div key={stat.label} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
                         <div className="flex justify-between items-start mb-4">
@@ -203,6 +215,38 @@ const Profile = () => {
                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</p>
                     </div>
                 ))}
+            </div>
+
+            {/* Gallery Preview */}
+            <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-8">
+                <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+                    <h3 className="text-xl font-black text-gray-900 tracking-tight">Photo Gallery</h3>
+                    <button 
+                        onClick={() => setEditingSection('photos')}
+                        className="text-[10px] font-black text-[#F46F4C] hover:text-[#e05e3b] transition-colors uppercase tracking-widest border border-[#F46F4C]/20 px-3 py-1.5 rounded-lg"
+                    >
+                        Manage
+                    </button>
+                </div>
+                {user.photos?.length > 0 ? (
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                        {user.photos.map((photo, idx) => (
+                            <div key={idx} className="aspect-[3/4] rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer bg-gray-50">
+                                <img 
+                                    src={photo} 
+                                    alt={`Gallery ${idx + 1}`} 
+                                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                                    onClick={() => setLightbox({ isOpen: true, currentPhoto: photo })}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="py-12 text-center bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100">
+                        <div className="text-3xl mb-3 opacity-30">📸</div>
+                        <p className="text-xs font-bold text-gray-400">Add up to 6 gallery photos to complete your profile</p>
+                    </div>
+                )}
             </div>
 
             <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-8">
@@ -386,6 +430,7 @@ const Profile = () => {
                 <nav className="flex-1 px-4 py-6 space-y-1">
                   {[
                     { id: 'view', label: 'Dashboard', icon: '📊', active: !editingSection },
+                    { id: 'photos', label: 'Photo Gallery', icon: '📸', active: editingSection === 'photos' },
                     { id: 'basicDetails', label: 'Basic Info', icon: '👤', active: editingSection === 'basicDetails' },
                     { id: 'religious', label: 'Religious', icon: '🕍', active: editingSection === 'religious' },
                     { id: 'professional', label: 'Career', icon: '💼', active: editingSection === 'professional' },
@@ -496,10 +541,73 @@ const Profile = () => {
                                 { name: 'nutchathiram', label: 'Natchathiram' },
                                 { name: 'dosham', label: 'Dosham', type: 'select', options: [{value:'No', label:'No'}, {value:'Yes', label:'Yes'}] }
                             ])}
+
+                            {editingSection === 'photos' && (
+                                <div className="bg-white border border-gray-100 rounded-[2.5rem] shadow-sm p-10 animate-fadeIn">
+                                    <div className="mb-8">
+                                        <h3 className="text-2xl font-black text-gray-900 tracking-tight">Photo Gallery</h3>
+                                        <p className="text-gray-400 font-bold mt-1 text-xs">Upload up to 6 photos to showcase your personality</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                        {[0, 1, 2, 3, 4, 5].map((idx) => (
+                                            <div key={idx} className="relative aspect-[3/4] group">
+                                                <div className="w-full h-full rounded-2xl overflow-hidden bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center relative">
+                                                    {formData.photos?.[idx] ? (
+                                                        <>
+                                                            <img 
+                                                                src={formData.photos[idx]} 
+                                                                alt={`Gallery ${idx + 1}`} 
+                                                                className="w-full h-full object-cover cursor-pointer"
+                                                                onClick={() => setLightbox({ isOpen: true, currentPhoto: formData.photos[idx] })}
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                                <FileUpload 
+                                                                    label="" 
+                                                                    onUpload={(url) => handlePhotoUpload(idx, url)} 
+                                                                    className="scale-75 invert grayscale"
+                                                                />
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="text-center p-4">
+                                                            <FileUpload 
+                                                                label="" 
+                                                                onUpload={(url) => handlePhotoUpload(idx, url)} 
+                                                                className="mb-2"
+                                                            />
+                                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2 px-2">Slot {idx + 1}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* Lightbox Modal */}
+            {lightbox.isOpen && (
+                <div 
+                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
+                    onClick={() => setLightbox({ isOpen: false, currentPhoto: '' })}
+                >
+                    <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <img 
+                        src={lightbox.currentPhoto} 
+                        alt="Enlarged" 
+                        className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl animate-scaleIn"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
 };

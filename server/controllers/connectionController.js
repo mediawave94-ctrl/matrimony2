@@ -51,6 +51,10 @@ exports.sendRequest = async (req, res) => {
         });
 
         await connection.save();
+
+        // Increment interest count for the recipient
+        await User.findByIdAndUpdate(recipientId, { $inc: { 'stats.interests': 1 } });
+        
         res.json(connection);
 
     } catch (err) {

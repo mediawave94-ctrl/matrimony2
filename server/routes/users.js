@@ -41,6 +41,7 @@ router.post('/upload', auth, upload.single('file'), (req, res) => {
     }
 });
 
+router.post('/shortlist/:id', auth, userController.shortlist);
 router.post('/subscribe', auth, userController.subscribe);
 
 module.exports = router;
