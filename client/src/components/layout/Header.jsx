@@ -120,8 +120,8 @@ const Header = () => {
                                 <span className="text-2xl">💍</span>
                             </div> */}
                             <div className="flex items-center gap-2">
-                                {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SM</div> */}
-                                <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+                                {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SCM</div> */}
+                                <span className="text-4xl font-black tracking-tighter text-gray-900">Shisya Chettiar <span className="text-brand-maroon">Matrimony</span></span>
                             </div>
                         </Link>
                     </div>

@@ -54,7 +54,7 @@ const Login = () => {
                 
                 {/* <div className="text-center mb-10">
                     <Link to="/" className="inline-block">
-                        <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+                        <span className="text-4xl font-black tracking-tighter text-gray-900">Shisya Chettiar <span className="text-brand-maroon">Matrimony</span></span>
                     </Link>
                     <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-4">Match by Values, Not Just Photos</p>
                 </div> */}

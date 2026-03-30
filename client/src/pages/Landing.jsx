@@ -32,8 +32,8 @@ const Landing = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SM</div> */}
-            <span className="text-4xl font-black tracking-tighter text-gray-900 font-serif">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+            {/* <div className="w-10 h-10 bg-brand-maroon rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg text-gold">SCM</div> */}
+            <span className="text-4xl font-black tracking-tighter text-gray-900 font-serif">Shisya Chettiar <span className="text-brand-maroon">Matrimony</span></span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -83,7 +83,7 @@ const Landing = () => {
                       </div>
                       <div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Support</p>
-                        <p className="text-sm font-bold text-gray-900">help@shishyamatrimony.com</p>
+                        <p className="text-sm font-bold text-gray-900">help@shisyachettiarmatrimony.com</p>
                       </div>
                     </div>
                   </div>
@@ -135,13 +135,13 @@ const Landing = () => {
                   </div>
                   <span className="font-bold text-gray-900">+91 98765 43210</span>
                 </a>
-                <a href="mailto:help@shishyamatrimony.com" className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
+                <a href="mailto:help@shisyachettiarmatrimony.com" className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl">
                   <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-brand-maroon shadow-sm">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <span className="font-bold text-gray-900">help@shishyamatrimony.com</span>
+                  <span className="font-bold text-gray-900">help@shisyachettiarmatrimony.com</span>
                 </a>
               </div>
             </div>
@@ -236,7 +236,7 @@ const Landing = () => {
 
             <div className="flex-1 space-y-8 flex flex-col items-center lg:items-start">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-maroon rounded-full flex items-center justify-center text-white font-bold text-xl text-gold">S</div>
+                <div className="w-12 h-12 bg-brand-maroon rounded-full flex items-center justify-center text-white font-bold text-xl text-gold">SC</div>
                 <div className="text-left">
                   <h3 className="text-2xl font-bold text-gray-900 leading-tight">Assisted Service</h3>
                   <p className="text-sm text-gray-500">Personalised matchmaking service</p>

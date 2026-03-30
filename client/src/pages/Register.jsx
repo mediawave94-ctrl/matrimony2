@@ -56,7 +56,7 @@ const Register = () => {
             <div className="max-w-md w-full">
                     {/* <div className="text-center mb-10">
                         <Link to="/" className="inline-block">
-                            <span className="text-4xl font-black tracking-tighter text-gray-900">Shishya <span className="text-brand-maroon">Matrimony</span></span>
+                            <span className="text-4xl font-black tracking-tighter text-gray-900">Shisya Chettiar <span className="text-brand-maroon">Matrimony</span></span>
                         </Link>
                     </div> */}
 
@@ -67,7 +67,7 @@ const Register = () => {
 
                     <form className="p-8 space-y-5" onSubmit={handleSubmit}>
                         <div className="text-center mb-2">
-                            <h4 className="text-gray-800 font-bold text-lg">Join Shishya Matrimony</h4>
+                            <h4 className="text-gray-800 font-bold text-lg">Join Shisya Chettiar Matrimony</h4>
                         </div>
 
                         <div className="space-y-4">

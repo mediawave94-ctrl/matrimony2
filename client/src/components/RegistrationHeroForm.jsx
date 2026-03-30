@@ -75,7 +75,7 @@ const RegistrationHeroForm = ({ isLogin, setIsLogin }) => {
                 {/* ================= FRONT SIDE (REGISTER) ================= */}
                 <div className="card-face backface-hidden bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col">
                     <div className="bg-brand-maroon py-4 px-6 text-center">
-                        <h3 className="text-brand-gold font-black text-xl">Create a Matrimony Profile</h3>
+                        <h3 className="text-brand-gold font-black text-xl">Create a Shisya Chettiar Profile</h3>
                     </div>
 
                     <form onSubmit={handleRegister} className="p-8 flex-1 flex flex-col justify-between space-y-4">

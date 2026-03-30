@@ -24,7 +24,7 @@ app.use('/api/chat', require('./routes/chat'));
 
 // Basic Route
 app.get('/', (req, res) => {
-    res.send('Bondly API is running');
+    res.send('Shisya Chettiar Matrimony API is running');
 });
 
 // Database Connection

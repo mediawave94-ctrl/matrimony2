@@ -7,7 +7,7 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="col-span-1 md:col-span-2">
-                        <span className="text-2xl font-bold text-secondary">Shisya Matrimony</span>
+                        <span className="text-2xl font-bold text-secondary">Shisya Chettiar Matrimony</span>
                         <p className="mt-4 text-gray-400 text-sm leading-relaxed max-w-sm">
 
                             This platform is exclusively for matrimonial purposes</p>
@@ -23,14 +23,14 @@ const Footer = () => {
                     <div>
                         <h4 className="text-lg font-semibold mb-4">Contact</h4>
                         <ul className="space-y-2 text-sm text-gray-400">
-                            <li>support@shisyamatrimony.com</li>
+                            <li>support@shisyachettiarmatrimony.com</li>
                             <li>+91 98765 43210</li>
                             <li>Privacy Policy</li>
                         </ul>
                     </div>
                 </div>
                 <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
-                    &copy; {new Date().getFullYear()} Shisya Matrimony. All rights reserved.
+                    &copy; {new Date().getFullYear()} Shisya Chettiar Matrimony. All rights reserved.
                 </div>
             </div>
         </footer>
