@@ -180,21 +180,13 @@ const Dashboard = () => {
                     <img 
                         src={p.basicDetails.photoUrl} 
                         alt={p.name} 
-                        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${p.connectionStatus !== 'accepted' ? 'blur-md brightness-90' : ''}`}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
                     <div className="absolute inset-0 bg-gray-50 flex items-center justify-center text-3xl font-black text-gray-200">{p.name[0]}</div>
                 )}
                 
-                {p.connectionStatus !== 'accepted' && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
-                        <div className="bg-white/90 px-3 py-1.5 rounded-full shadow-lg border border-white/50">
-                            <span className="text-[10px] font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
-                                🔒 Request View
-                            </span>
-                        </div>
-                    </div>
-                )}
+                {/* Overlay removed so image is visible */}
 
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                     <div className="bg-white/95 backdrop-blur px-2.5 py-1 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center">
@@ -275,35 +267,39 @@ const Dashboard = () => {
                             </div>
                             <button 
                                 onClick={() => navigate('/profile')} 
-                                className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white border border-[#F46F4C]/10 shadow-sm hover:shadow-md hover:bg-[#FFF5F0] transition-all group"
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-brown   border border-[#F46F4C]/10 shadow-sm hover:shadow-md hover:bg-[#FFF5F0] transition-all group"
                             >
                                 <div className="w-8 h-8 rounded-xl bg-[#F46F4C]/10 flex items-center justify-center text-[#F46F4C] font-black text-sm group-hover:bg-[#F46F4C] group-hover:text-white transition-colors capitalize">
                                     {currentUser?.name?.charAt(0) || 'U'}
                                 </div>
-                                <span className="text-xs font-black text-gray-700 uppercase tracking-widest hidden lg:block capitalize">My Profile</span>
+                                <span className="text-xs font-black text-gray-700  uppercase tracking-widest capitalize">My Profile</span>
                             </button>
                         </div>
                     </header>
 
-                    {/* Weekly Matches */}
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
-                                <span className="w-8 h-[2px] bg-[#F46F4C]"></span>
-                                Exclusive Matches For Interest
-                            </h2>
+                    {/* Location Matches */}
+                    {currentUser?.location?.city && (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-3">
+                                    <span className="w-8 h-[2px] bg-[#F46F4C]"></span>
+                                    Matches In {currentUser.location.city}
+                                </h2>
+                            </div>
+                            {allProfiles.filter(p => p.location?.city === currentUser.location.city && p._id !== currentUser._id).length === 0 ? (
+                                <div className="bg-white p-12 rounded-[3rem] border border-gray-100 text-center space-y-4">
+                                    <p className="text-gray-400 font-bold">No match based on your location.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {allProfiles
+                                        .filter(p => p.location?.city === currentUser.location.city && p._id !== currentUser._id)
+                                        .slice(0, 3)
+                                        .map(m => <ProfileCard key={m._id} p={m} isMatch />)}
+                                </div>
+                            )}
                         </div>
-                        {matches.length === 0 ? (
-                            <div className="bg-white p-12 rounded-[3rem] border border-gray-100 text-center space-y-4">
-                                <p className="text-gray-400 font-bold">Discovering new compatible souls...</p>
-                                <Button onClick={() => navigate('/onboarding')} className="text-xs px-8">Refresh DNA Quiz</Button>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {matches.slice(0, 3).map(m => <ProfileCard key={m._id} p={m} isMatch />)}
-                            </div>
-                        )}
-                    </div>
+                    )}
 
                     {/* All Profiles */}
                     <div className="space-y-6">
@@ -402,7 +398,7 @@ const Dashboard = () => {
                 <div className="mt-auto p-6 bg-[#FFF5F0] rounded-3xl border border-orange-50 space-y-2">
                     <p className="text-[10px] font-black text-[#F46F4C] uppercase tracking-[0.2em]">Premium Filter</p>
                     <p className="text-[11px] font-bold text-gray-600 leading-relaxed">Upgrade to see members matching your DNA perfectly.</p>
-                    <Button onClick={() => navigate('/pricing')} className="w-full text-[10px] py-3 mt-2 bg-white text-[#F46F4C] border border-[#F46F4C]/20 shadow-none hover:bg-white hover:shadow-lg">Learn More</Button>
+                    <button onClick={() => navigate('/pricing')} className="w-full font-bold rounded-xl text-[10px] py-3 mt-2 bg-white text-[#F46F4C] border border-[#F46F4C]/20 hover:shadow-lg transition-shadow">Learn More</button>
                 </div>
             </aside>
 

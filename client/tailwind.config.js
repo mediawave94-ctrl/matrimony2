@@ -9,6 +9,7 @@ export default {
       colors: {
         primary: '#800000', // Maroon
         secondary: '#daa520', // Gold
+        brown: '#80000059',
         maroon: '#800000',
         gold: '#daa520',
         'brand-maroon': '#800000',

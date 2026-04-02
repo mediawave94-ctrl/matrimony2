@@ -377,13 +377,21 @@ const Profile = () => {
                                 ))}
                             </select>
                         ) : (
-                            <input 
-                                type={f.type || 'text'}
-                                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-1 focus:ring-[#F46F4C] font-bold text-gray-800 text-sm transition-all"
-                                value={f.name === 'dob' ? (formData[sectionId]?.[f.name]?.split('T')[0] || '') : (formData[f.section || sectionId]?.[f.name] || '')}
-                                onChange={(e) => handleChange(f.section || sectionId, f.name, e.target.value)}
-                                placeholder={f.label}
-                            />
+                            <>
+                                <input 
+                                    type={f.type || 'text'}
+                                    className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-1 focus:ring-[#F46F4C] font-bold text-gray-800 text-sm transition-all"
+                                    value={f.name === 'dob' ? (formData[sectionId]?.[f.name]?.split('T')[0] || '') : (formData[f.section || sectionId]?.[f.name] || '')}
+                                    onChange={(e) => handleChange(f.section || sectionId, f.name, e.target.value)}
+                                    placeholder={f.label}
+                                    list={f.datalist ? `${f.name}-list` : undefined}
+                                />
+                                {f.datalist && (
+                                    <datalist id={`${f.name}-list`}>
+                                        {f.datalist.map(opt => <option key={opt} value={opt} />)}
+                                    </datalist>
+                                )}
+                            </>
                         )}
                     </div>
                 ))}
@@ -448,7 +456,6 @@ const Profile = () => {
                         : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
                       }`}
                     >
-                      <span>{item.icon}</span>
                       {item.label}
                     </button>
                   ))}
@@ -514,7 +521,7 @@ const Profile = () => {
                             {editingSection === 'location' && renderFormSection('Location Details', 'location', [
                                 { name: 'country', label: 'Country' },
                                 { name: 'state', label: 'State' },
-                                { name: 'city', label: 'City' },
+                                { name: 'city', label: 'City', datalist: ['Chennai', 'Coimbatore', 'Madurai', 'Trichy', 'Salem', 'Tirunelveli', 'Vellore', 'Erode', 'Thoothukudi', 'Thanjavur', 'Bangalore', 'Hyderabad', 'Mumbai', 'Delhi'] },
                                 { name: 'citizenship', label: 'Citizenship' }
                             ])}
 
