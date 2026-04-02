@@ -195,7 +195,7 @@ const Dashboard = () => {
                         <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
-                        <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                        <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.1em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
                         <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
