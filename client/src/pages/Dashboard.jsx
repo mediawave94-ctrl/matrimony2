@@ -186,6 +186,15 @@ const Dashboard = () => {
                     <div className="absolute inset-0 bg-gray-50 flex items-center justify-center text-3xl font-black text-gray-200">{p.name[0]}</div>
                 )}
                 
+                {/* Copyright Overlay for Free Users */}
+                {currentUser?.subscriptionStatus === 'free' && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[5]">
+                        <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                            Shisya Chettiar Matrimony
+                        </span>
+                    </div>
+                )}
+                
                 {/* Overlay removed so image is visible */}
 
                 <div className="absolute top-3 left-3 flex flex-col gap-2">

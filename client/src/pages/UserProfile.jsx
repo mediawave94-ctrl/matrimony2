@@ -9,6 +9,7 @@ const UserProfile = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
@@ -18,7 +19,16 @@ const UserProfile = () => {
     useEffect(() => {
         fetchUserProfile();
         fetchConnectionStatus();
+        fetchCurrentUser();
     }, [id]);
+
+    const fetchCurrentUser = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/users/profile', { headers: { 'x-auth-token': token } });
+            if (res.ok) setCurrentUser(await res.json());
+        } catch (err) {}
+    };
 
     const fetchUserProfile = async () => {
         try {
@@ -142,6 +152,15 @@ const UserProfile = () => {
                                     </svg>
                                 </div>
                             )}
+
+                            {/* Copyright Overlay for Free Users */}
+                            {currentUser?.subscriptionStatus === 'free' && (
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[5]">
+                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                                        Shisya Chettiar Matrimony
+                                    </span>
+                                </div>
+                            )}
                         </div>
                         <div className="text-center md:text-left flex-grow">
                             <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
@@ -193,9 +212,22 @@ const UserProfile = () => {
                     </div>
                 </Card>
 
-                {/* Astrology Detailed Compatibility */}
-                {user.astroMatch && (
-                    <Card className="p-0 border border-gray-200 overflow-hidden shadow-sm">
+                {currentUser?.subscriptionStatus === 'free' ? (
+                    <Card className="p-12 bg-white text-center shadow-xl border border-rose-100 flex flex-col items-center">
+                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+                            <span className="text-4xl text-amber-500">👑</span>
+                        </div>
+                        <h2 className="text-2xl font-black text-gray-900 mb-3">Premium Feature</h2>
+                        <p className="text-gray-500 font-medium max-w-md mx-auto mb-8">Upgrade to Premium to view full profile details, family background, astrology compatibilities, and photo galleries.</p>
+                        <Button onClick={() => navigate('/pricing')} className="px-10 py-4 bg-[#F46F4C] hover:bg-[#e05e3b] text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-orange-200 transition-all">
+                            Unlock Full Profile
+                        </Button>
+                    </Card>
+                ) : (
+                    <>
+                        {/* Astrology Detailed Compatibility */}
+                        {user.astroMatch && (
+                            <Card className="p-0 border border-gray-200 overflow-hidden shadow-sm">
                         <div className="bg-gray-50/50 py-4 border-b border-gray-200 text-center">
                             <h3 className="text-xl font-bold text-gray-800">Wedding fit results</h3>
                         </div>
@@ -339,7 +371,9 @@ const UserProfile = () => {
                             <p className="text-xs text-gray-500 font-medium px-8 leading-relaxed">Family heritage and contact details are available once the member accepts your interest.</p>
                         </Card>
                     )}
-                </div>
+                        </div>
+                    </>
+                )}
             </div>
 
             <ConnectModal
