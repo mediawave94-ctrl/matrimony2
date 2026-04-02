@@ -189,16 +189,16 @@ const Dashboard = () => {
                 {/* Copyright Overlay for Free Users */}
                 {currentUser?.subscriptionStatus === 'free' && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[5]">
-                        <span className="text-[10px] font-black text-black/50 uppercase tracking-[0.3em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                        <span className="text-[10px] font-black text-black/70 uppercase tracking-[0.3em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                        <span className="text-[10px] font-black text-black/70 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
-                        <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.1em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                        <span className="text-[10px] font-black text-white/70 uppercase tracking-[0.1em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
-                        <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
+                        <span className="text-[10px] font-black text-white/70 uppercase tracking-[0.5em] rotate-[-25deg] whitespace-nowrap drop-shadow-sm">
                             Shisya Chettiar Matrimony
                         </span>
                     </div>
